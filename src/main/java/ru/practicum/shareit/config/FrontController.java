@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.config;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 

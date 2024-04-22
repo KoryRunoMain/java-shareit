@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.IItemStorage;
 import ru.practicum.shareit.item.storage.ItemMapper;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.transaction.Transactional;
@@ -35,8 +37,8 @@ public class ItemService {
     @Transactional
     public ItemDto create(ItemDto itemDto, Long userId) {
         log.info("Ok!");
-        Optional<Object> user = userService.getUserById(userId);
-        if (user.isPresent()) {
+        UserDto user = userService.getUserById(userId);
+        if (user != null) {
             return itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));
         } else {
             return null;
@@ -44,20 +46,18 @@ public class ItemService {
     }
 
     @Transactional
-    public ItemDto update(ItemDto itemDto, Long ownerId, Long itemId) {
-        Item oldItem = Objects.requireNonNull(itemStorage.getItemId(itemId));
-        userService.getUserById(ownerId)
-                .filter(user -> user.equals(ownerId))
-                .orElseThrow(() ->
-                        new NotFoundException("Not found!")
-                );
-        itemDto.setName(itemDto.getName() != null ? itemDto.getName() : oldItem.getName());
-        itemDto.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : oldItem.getDescription());
-        itemDto.setAvailable(oldItem.isAvailable());
-        itemDto.setId(itemDto.getId() != null ? itemDto.getId() : itemId);
-        log.info("Ok!");
-        return itemMapper.toItemDto(itemStorage.update(
-                itemMapper.toItem(itemDto, ownerId)));
+    public Item update(ItemDto itemDto, Long ownerId, Long itemId) {
+        Item oldItem = itemStorage.getItemId(itemId);
+        if (oldItem == null) {
+            throw new NotFoundException("Item not found!");
+        }
+        if (!oldItem.getOwner().equals(ownerId)) {
+            throw new NotFoundException("Not found!");
+        }
+        oldItem.setName(itemDto.getName() != null ? itemDto.getName() : oldItem.getName());
+        oldItem.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : oldItem.getDescription());
+        oldItem.setAvailable(itemDto.isAvailable());
+        return itemStorage.update(oldItem);
     }
 
     @Transactional
