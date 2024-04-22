@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,14 +8,17 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@AllArgsConstructor
 @Builder(toBuilder = true)
-public class User {
+@AllArgsConstructor
+public class UserDto {
+
     private Long id;
-    @NotBlank(message = "поле не может быть пустым")
+
+    @NotBlank
     private String name;
 
+    @NotBlank
     @Email
-    @NotBlank(message = "поле не может быть пустым")
     private String email;
+
 }
