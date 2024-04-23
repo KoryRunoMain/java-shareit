@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.config.FrontController;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
@@ -16,7 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @AllArgsConstructor
-public class UserController extends FrontController {
+@CrossOrigin({
+        "http://localhost:5173/",
+        "http://127.0.0.1:5173/"})
+public class UserController {
     private UserService userService;
     private ItemService itemService;
 

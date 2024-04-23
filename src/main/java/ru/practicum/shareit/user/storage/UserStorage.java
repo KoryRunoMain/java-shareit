@@ -1,12 +1,10 @@
 package ru.practicum.shareit.user.storage;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
-@Slf4j
 @Repository
 public class UserStorage implements IUserStorage {
     private final Map<Long, User> users;
@@ -19,9 +17,7 @@ public class UserStorage implements IUserStorage {
 
     public User create(User user) {
         user.setId(++id);
-        users.put(user.getId(), user);
-        log.info("create: userId = {}", user.getId());
-        return user;
+        return users.put(user.getId(), user);
     }
 
     @Override
@@ -30,41 +26,30 @@ public class UserStorage implements IUserStorage {
     }
 
     @Override
-    public User delete(User user) {
-        User deleteUser = users.remove(user.getId());
-        log.info("delete UserId {}", deleteUser.getId());
-        return deleteUser;
+    public User delete(Long id) {
+        return users.remove(id);
     }
 
     @Override
     public User update(User user) {
-        User updateUser = users.put(user.getId(),user);
-        assert updateUser != null;
-        log.info("update UserId {}", updateUser.getId());
-        return updateUser;
+        return users.put(user.getId(),user);
     }
 
     @Override
     public List<User> getUsers() {
-        List<User> getUsers = new ArrayList<>(users.values());
-        log.info("get User List {}", getUsers);
-        return getUsers;
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public boolean isContains(User user) {
-        boolean isContainsUser = users.containsKey(user.getId());
-        log.info("isCont user? {}", isContainsUser);
-        return isContainsUser;
+        return users.containsKey(user.getId());
     }
 
     @Override
     public Optional<Long> getUserByEmail(String email) {
-        Optional<Long> userEmail = users.values().stream()
+        return users.values().stream()
                 .filter(user -> email.equals(user.getEmail()))
                 .map(User::getId)
                 .findFirst();
-        log.info("getUser email {}", userEmail);
-        return userEmail;
     }
 }

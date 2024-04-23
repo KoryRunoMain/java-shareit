@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.config.FrontController;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -15,7 +14,10 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
-public class ItemController extends FrontController {
+@CrossOrigin({
+        "http://localhost:5173/",
+        "http://127.0.0.1:5173/"})
+public class ItemController {
 
     private static final String OWNER_ID = "X-Sharer-User-Id";
     private ItemService itemService;
@@ -36,9 +38,9 @@ public class ItemController extends FrontController {
     }
 
     @PostMapping
-    public ItemDto create(@Validated @RequestBody ItemDto item,
+    public ItemDto create(@Validated @RequestBody ItemDto itemDto,
                                     @RequestHeader(OWNER_ID) Long userId) {
-        return itemService.create(item, userId);
+        return itemService.create(itemDto, userId);
     }
 
     @PostMapping("/{itemId}")
@@ -48,9 +50,9 @@ public class ItemController extends FrontController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@Validated @RequestBody ItemDto item,
+    public ItemDto update(@Validated @RequestBody ItemDto itemDto,
                           @PathVariable Long itemId,
                           @RequestHeader(OWNER_ID) Long ownerId) {
-        return itemService.update(item, itemId, ownerId);
+        return itemService.update(itemDto, itemId, ownerId);
     }
 }
