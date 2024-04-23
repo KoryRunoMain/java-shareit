@@ -7,7 +7,7 @@ import java.util.*;
 
 @Repository
 public class UserStorage implements IUserStorage {
-    private final Map<Long, User> users;
+    private Map<Long, User> users;
     private Long id;
 
     public UserStorage() {
@@ -15,6 +15,7 @@ public class UserStorage implements IUserStorage {
         users = new HashMap<>();
     }
 
+    @Override
     public User create(User user) {
         user.setId(++id);
         return users.put(user.getId(), user);

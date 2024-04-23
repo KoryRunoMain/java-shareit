@@ -11,11 +11,13 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class User {
+
     private Long id;
-    @NotBlank(message = "поле не может быть пустым")
+
+    @NotBlank
     private String name;
 
-    @NotBlank(message = "поле не может быть пустым")
+    @NotBlank
     @Email
     private String email;
 }
