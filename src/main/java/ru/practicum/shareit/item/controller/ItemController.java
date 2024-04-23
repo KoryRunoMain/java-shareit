@@ -8,15 +8,12 @@ import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
-@RestController
-@AllArgsConstructor
-@RequestMapping("/items")
 @CrossOrigin({
         "http://localhost:5173/",
         "http://127.0.0.1:5173/"})
+@RestController
+@AllArgsConstructor
+@RequestMapping("/items")
 public class ItemController {
 
     private static final String OWNER_ID = "X-Sharer-User-Id";

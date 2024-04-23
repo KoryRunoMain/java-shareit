@@ -9,15 +9,12 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
-@RestController
-@RequestMapping(path = "/users")
-@AllArgsConstructor
 @CrossOrigin({
         "http://localhost:5173/",
         "http://127.0.0.1:5173/"})
+@RestController
+@RequestMapping(path = "/users")
+@AllArgsConstructor
 public class UserController {
     private UserService userService;
     private ItemService itemService;
