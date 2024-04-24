@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.service.ItemService;
@@ -11,6 +12,7 @@ import java.util.List;
 @CrossOrigin({
         "http://localhost:5173/",
         "http://127.0.0.1:5173/"})
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
@@ -21,35 +23,41 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getItem(@PathVariable Long itemId) {
+        log.info("Get-запрос getItem: itemId {}", itemId);
         return itemService.get(itemId);
     }
 
     @GetMapping
     public List<ItemDto> getItemByOwner(@RequestHeader(OWNER_ID) Long userId) {
+        log.info("Get-запрос getItemByOwner: userId {}", userId);
         return itemService.getItemByOwner(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getItemSearch(@RequestParam String text) {
+        log.info("Get-запрос getItemSearch: text {}", text);
         return itemService.getItemSearch(text);
     }
 
     @PostMapping
     public ItemDto create(@Validated @RequestBody ItemDto itemDto,
                                     @RequestHeader(OWNER_ID) Long userId) {
+        log.info("Post-запрос create: userId {}, itemDto {}", userId, itemDto);
         return itemService.create(itemDto, userId);
     }
 
     @PostMapping("/{itemId}")
     public ItemDto delete(@PathVariable Long itemId,
                           @RequestHeader(OWNER_ID) Long userId) {
+        log.info("Post-запрос delete: userId {}, itemId {}", userId, itemId);
         return itemService.delete(itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@Validated @RequestBody ItemDto itemDto,
+    public ItemDto update(@RequestBody ItemDto itemDto,
                           @PathVariable Long itemId,
                           @RequestHeader(OWNER_ID) Long userId) {
+        log.info("Patch-запрос update: userId {}, itemId {}, itemDto {}", userId, itemId, itemDto);
         return itemService.update(itemDto, itemId, userId);
     }
 }

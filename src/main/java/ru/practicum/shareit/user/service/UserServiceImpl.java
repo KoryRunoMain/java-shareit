@@ -18,58 +18,55 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private UserStorage storage;
-    private UserMapper mapper;
+    private UserStorage userStorage;
+    private UserMapper userMapper;
 
     @Override
     public UserDto create(UserDto userDto) {
-        User newUser = mapper.toUser(userDto);
+        User newUser = userMapper.toUser(userDto);
         validateCreateUser(userDto);
         checkUserExists(userDto.getEmail());
-        UserDto createdUser = mapper.toUserDto(storage.create(newUser));
+        UserDto createdUser = userMapper.toUserDto(userStorage.create(newUser));
         log.info("create.Ok!");
         return createdUser;
     }
 
     @Override
     public UserDto update(UserDto userDto, Long userId) {
-        User updateUser = storage.get(userId);
+        User updateUser = userStorage.get(userId);
         if (updateUser == null) {
             throw new NotFoundException("Not Found!");
         }
-        storage.getUsers().stream()
+        userStorage.getUsers().stream()
                 .filter(u -> !u.getId().equals(userId) && u.getEmail().equals(userDto.getEmail()))
                 .findFirst()
                 .ifPresent(user -> {
                     throw new AlreadyExistsException("Email уже занят");
                 });
-        if (userDto.getEmail() != null
-                && !userDto.getEmail().isEmpty()
-                && userDto.getEmail().contains("@")) {
+        if (userDto.getEmail() != null && !userDto.getEmail().isEmpty() && userDto.getEmail().contains("@")) {
             updateUser.setEmail(userDto.getEmail());
         }
-        if (userDto.getName() != null
-                && !userDto.getName().isEmpty()) {
+        if (userDto.getName() != null && !userDto.getName().isEmpty()) {
             updateUser.setName(userDto.getName());
         }
-        return mapper.toUserDto(storage.update(updateUser));
+        return userMapper.toUserDto(userStorage.update(updateUser));
     }
 
     @Override
     public UserDto delete(Long userId) {
-        if (!storage.isContains(userId)) {
+        if (!userStorage.isContains(userId)) {
             throw new NotFoundException("Not found");
         }
         log.info("delete.Ok!");
-        return mapper.toUserDto(storage.delete(userId));
+        return userMapper.toUserDto(userStorage.delete(userId));
     }
 
     @Override
     public UserDto getUserById(Long userId) {
-        User user = storage.get(userId);
+        User user = userStorage.get(userId);
         try {
             log.info("getUserById.Ok!");
-            return mapper.toUserDto(user);
+            return userMapper.toUserDto(user);
         } catch (NotFoundException e) {
             throw new NotFoundException("Not Found!");
         }
@@ -78,8 +75,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsers() {
         log.info("getUsers.Ok!");
-        return storage.getUsers().stream()
-                .map(mapper::toUserDto)
+        return userStorage.getUsers().stream()
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
@@ -93,7 +90,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkUserExists(String email) {
-        if (storage.getUserByEmail(email).isPresent()) {
+        if (userStorage.getUserByEmail(email).isPresent()) {
             throw new AlreadyExistsException("Пользователь уже существует");
         }
     }

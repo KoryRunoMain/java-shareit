@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.IItemStorage;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collections;
@@ -21,7 +20,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserService userService;
     private final ItemMapper itemMapper;
-    private final IItemStorage itemStorage;
+    private final ItemStorage itemStorage;
 
     @Override
     public ItemDto get(Long itemId) {
@@ -31,9 +30,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(ItemDto itemDto, Long userId) {
-        UserDto user = userService.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("User with ID = " + userId + " not found.");
+        if (userService.getUserById(userId) == null) {
+            throw new NotFoundException("Not Found!");
         }
         log.info("Ok!");
         return itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));

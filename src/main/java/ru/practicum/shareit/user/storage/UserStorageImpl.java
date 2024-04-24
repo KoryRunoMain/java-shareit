@@ -7,7 +7,7 @@ import java.util.*;
 
 @Repository
 public class UserStorageImpl implements UserStorage {
-    private Map<Long, User> users;
+    private final Map<Long, User> users;
     private Long id;
 
     public UserStorageImpl() {
@@ -39,7 +39,7 @@ public class UserStorageImpl implements UserStorage {
 
     @Override
     public User update(User user) {
-       users.put(user.getId(),user);
+        users.put(user.getId(),user);
         return user;
     }
 
