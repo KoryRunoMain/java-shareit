@@ -25,8 +25,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemByOwner(@RequestHeader(OWNER_ID) Long owner) {
-        return itemService.getItemByOwner(owner);
+    public List<ItemDto> getItemByOwner(@RequestHeader(OWNER_ID) Long userId) {
+        return itemService.getItemByOwner(userId);
     }
 
     @GetMapping("/search")
@@ -42,14 +42,14 @@ public class ItemController {
 
     @PostMapping("/{itemId}")
     public ItemDto delete(@PathVariable Long itemId,
-                          @RequestHeader(OWNER_ID) Long owner) {
-        return itemService.delete(itemId, owner);
+                          @RequestHeader(OWNER_ID) Long userId) {
+        return itemService.delete(itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@Validated @RequestBody ItemDto itemDto,
                           @PathVariable Long itemId,
-                          @RequestHeader(OWNER_ID) Long ownerId) {
-        return itemService.update(itemDto, itemId, ownerId);
+                          @RequestHeader(OWNER_ID) Long userId) {
+        return itemService.update(itemDto, itemId, userId);
     }
 }

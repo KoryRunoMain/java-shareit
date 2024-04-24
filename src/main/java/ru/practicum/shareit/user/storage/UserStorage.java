@@ -1,56 +1,22 @@
 package ru.practicum.shareit.user.storage;
 
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-@Repository
-public class UserStorage implements IUserStorage {
-    private Map<Long, User> users;
-    private Long id;
+public interface UserStorage {
+    User create(User user);
 
-    public UserStorage() {
-        id = 0L;
-        users = new HashMap<>();
-    }
+    User update(User user);
 
-    @Override
-    public User create(User user) {
-        user.setId(++id);
-        return users.put(user.getId(), user);
-    }
+    User get(Long id);
 
-    @Override
-    public User get(Long id) {
-        return users.get(id);
-    }
+    User delete(Long id);
 
-    @Override
-    public User delete(Long id) {
-        return users.remove(id);
-    }
+    List<User> getUsers();
 
-    @Override
-    public User update(User user) {
-        return users.put(user.getId(),user);
-    }
+    boolean isContains(Long user);
 
-    @Override
-    public List<User> getUsers() {
-        return new ArrayList<>(users.values());
-    }
-
-    @Override
-    public boolean isContains(User user) {
-        return users.containsKey(user.getId());
-    }
-
-    @Override
-    public Optional<Long> getUserByEmail(String email) {
-        return users.values().stream()
-                .filter(user -> email.equals(user.getEmail()))
-                .map(User::getId)
-                .findFirst();
-    }
+    Optional<Long> getUserByEmail(String email);
 }
