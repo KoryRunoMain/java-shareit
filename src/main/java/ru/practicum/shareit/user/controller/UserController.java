@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -44,6 +45,7 @@ public class UserController {
         return userService.update(userDto, userId);
     }
 
+    @Transactional
     @DeleteMapping("/{userId}")
     public UserDto delete(@PathVariable Long userId) {
         log.info("Delete-request delete: userId {}", userId);

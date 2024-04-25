@@ -9,6 +9,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+/*
+    TODO MB NEXT SPRINT
+ */
+
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)

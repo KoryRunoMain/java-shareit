@@ -1,7 +1,6 @@
 package ru.practicum.shareit;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,21 +13,19 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemStorageTest {
-
     private ItemStorage itemStorage;
 
-
-    @BeforeEach
     void init() {
         itemStorage = new ItemStorageImpl();
     }
 
     @Test
     public void create() {
+        init();
         assertThatCode(() -> {
             Item newItem = Item.builder()
                     .id(1L)
-                    .isAvailable(true)
+                    .available(true)
                     .name("Name")
                     .owner(1L)
                     .request(1L)
@@ -36,6 +33,5 @@ public class ItemStorageTest {
             itemStorage.create(newItem);
         }).doesNotThrowAnyException();
     }
-
 }
 
