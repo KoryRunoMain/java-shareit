@@ -7,8 +7,11 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.validation.ValidationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +36,10 @@ public class ItemServiceImpl implements ItemService {
         if (userService.getUserById(userId) == null) {
             throw new NotFoundException("Not Found!");
         }
-        log.info("Ok!");
-        return itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));
+        Item item = itemMapper.toItem(itemDto, userId);
+        ItemDto createItemDto = itemMapper.toItemDto(itemStorage.create(item));
+        log.info("create.Ok!");
+        return createItemDto;
     }
 
     @Override

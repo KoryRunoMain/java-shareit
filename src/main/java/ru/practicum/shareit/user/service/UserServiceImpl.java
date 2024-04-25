@@ -26,9 +26,9 @@ public class UserServiceImpl implements UserService {
         User newUser = userMapper.toUser(userDto);
         validateCreateUser(userDto);
         checkUserExists(userDto.getEmail());
-        UserDto createdUser = userMapper.toUserDto(userStorage.create(newUser));
+        UserDto createdUserDto = userMapper.toUserDto(userStorage.create(newUser));
         log.info("create.Ok!");
-        return createdUser;
+        return createdUserDto;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package ru.practicum.shareit.exception;
 
-public class ValidationException extends Throwable {
-    public ValidationException(String message) {
+public class ValidationException extends IllegalArgumentException {
+    public ValidationException(final String message) {
         super(message);
     }
 }
