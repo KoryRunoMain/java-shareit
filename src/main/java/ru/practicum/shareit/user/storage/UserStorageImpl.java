@@ -39,7 +39,7 @@ public class UserStorageImpl implements UserStorage {
 
     @Override
     public User update(User user) {
-        users.put(user.getId(),user);
+        users.put(user.getId(), user);
         return user;
     }
 
@@ -60,4 +60,5 @@ public class UserStorageImpl implements UserStorage {
                 .map(User::getId)
                 .findFirst();
     }
+
 }

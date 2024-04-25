@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @Repository
 @AllArgsConstructor
 public class ItemStorageImpl implements ItemStorage {
+
     private Map<Long, Item> items;
     private Long id;
 
@@ -34,7 +35,7 @@ public class ItemStorageImpl implements ItemStorage {
 
     @Override
     public Item update(Item item) {
-        items.put(item.getId(),item);
+        items.put(item.getId(), item);
         return item;
     }
 
@@ -68,4 +69,5 @@ public class ItemStorageImpl implements ItemStorage {
                         item.getDescription().toLowerCase().contains(text.toLowerCase()))
                 .collect(Collectors.toList());
     }
+
 }
