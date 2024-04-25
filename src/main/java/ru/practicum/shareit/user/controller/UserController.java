@@ -10,47 +10,43 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
-@CrossOrigin({
-        "http://localhost:5173/",
-        "http://127.0.0.1:5173/"})
-@RestController
-@RequestMapping(path = "/users")
-@AllArgsConstructor
 @Slf4j
+@RestController
+@AllArgsConstructor
+@RequestMapping(path = "/users")
 public class UserController {
     private UserService userService;
     private ItemService itemService;
 
-    @GetMapping
-    public List<UserDto> getUsers() {
-        log.info("Получен Get-запрос к /users");
-        return userService.getUsers();
+    @GetMapping("/{userId}")
+    public UserDto getUser(@PathVariable Long userId) {
+        log.info("Get-request getUser: userId {}", userId);
+        return userService.get(userId);
     }
 
-    @GetMapping("/{userId}")
-    public UserDto get(@PathVariable Long userId) {
-        log.info("Получен Get-запрос к /users/{}", userId);
-        return userService.getUserById(userId);
+    @GetMapping
+    public List<UserDto> getUsers() {
+        log.info("Get-request getUsers");
+        return userService.getUsers();
     }
 
     @ResponseBody
     @PostMapping
-    public UserDto create(@Validated @RequestBody UserDto userDto) {
-        log.info("Получен Post-запрос к /users, userDto: {}", userDto);
+    public UserDto createItem(@Validated @RequestBody UserDto userDto) {
+        log.info("Post-request createItem: userDto {}", userDto);
         return userService.create(userDto);
     }
 
     @ResponseBody
     @PatchMapping("/{userId}")
-    public UserDto update(@RequestBody UserDto userDto,
-                              @PathVariable Long userId) {
-        log.info("Получен Patch-запрос к /users/{}", userId);
+    public UserDto update(@RequestBody UserDto userDto, @PathVariable Long userId) {
+        log.info("Patch-request update: userID {}, userDto {}", userId, userDto);
         return userService.update(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")
     public UserDto delete(@PathVariable Long userId) {
-        log.info("Получен Delete-запрос к /users/{}", userId);
+        log.info("Delete-request delete: userId {}", userId);
         itemService.deleteItemsByOwner(userId);
         return userService.delete(userId);
     }

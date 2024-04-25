@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 @Repository
 @AllArgsConstructor
 public class ItemStorageImpl implements ItemStorage {
-
     private Map<Long, Item> items;
     private Long id;
 

@@ -14,28 +14,28 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
-@Slf4j
 public class ItemServiceImpl implements ItemService {
-
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final ItemStorage itemStorage;
 
     @Override
     public ItemDto get(Long itemId) {
-        log.info("Ok!");
-        return itemMapper.toItemDto(itemStorage.getItemId(itemId));
+        ItemDto getItemDto = itemMapper.toItemDto(itemStorage.getItemId(itemId));
+        log.info("get.Ok!");
+        return getItemDto;
     }
 
     @Override
     public ItemDto create(ItemDto itemDto, Long userId) {
-        if (userService.getUserById(userId) == null) {
-            throw new NotFoundException("Not Found!");
+        if (userService.get(userId) == null) {
+            throw new NotFoundException("create.NotFound!");
         }
         if (itemDto.getAvailable() == null) {
-            throw new ValidationException("UnValidated!");
+            throw new ValidationException("create.InValidField!");
         }
         ItemDto createItemDto = itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));
         log.info("create.Ok!");
@@ -44,52 +44,56 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
-        Item oldItem = itemStorage.getItemId(itemId);
-        if (oldItem == null) {
-            throw new NotFoundException("Not found!");
+        Item itemToUpdate = itemStorage.getItemId(itemId);
+
+        itemDto.setName(itemDto.getName() != null ? itemDto.getName() : itemToUpdate.getName());
+        itemDto.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : itemToUpdate.getDescription());
+        itemDto.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : itemToUpdate.getAvailable());
+        itemDto.setId(itemDto.getId() != null ? itemDto.getId() : itemId);
+
+        if (userService.get(ownerId) == null || !itemToUpdate.getOwner().equals(ownerId)) {
+            throw new NotFoundException("update.NotFound!");
         }
-        if (!oldItem.getOwner().equals(ownerId)) {
-            throw new NotFoundException("Not found!");
-        }
-        oldItem.setName(itemDto.getName() != null ? itemDto.getName() : oldItem.getName());
-        oldItem.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : oldItem.getDescription());
-        oldItem.setAvailable(itemDto.getAvailable());
-        log.info("Ok!");
-        return itemMapper.toItemDto(itemStorage.update(itemMapper.toItem(itemDto, ownerId)));
+        ItemDto updatedItemDto = itemMapper.toItemDto(itemStorage.update(itemMapper.toItem(itemDto, ownerId)));
+        log.info("update.Ok!");
+        return updatedItemDto;
     }
 
     @Override
     public ItemDto delete(Long itemId, Long ownerId) {
         Item item = itemStorage.getItemId(itemId);
         if (!item.getOwner().equals(ownerId)) {
-            throw new NotFoundException("Not Found!");
+            throw new NotFoundException("delete.NotFound!");
         }
-        log.info("Ok!");
-        return itemMapper.toItemDto(itemStorage.delete(itemId));
+        ItemDto deleteItemDto = itemMapper.toItemDto(itemStorage.delete(itemId));
+        log.info("delete.Ok!");
+        return deleteItemDto;
     }
 
     @Override
     public void deleteItemsByOwner(Long owner) {
         itemStorage.deleteItemsByOwner(owner);
-        log.info("Ok!");
+        log.info("deleteItemsByOwner.Ok!");
     }
 
     @Override
     public List<ItemDto> getItemByOwner(Long owner) {
-        log.info("Ok!");
-        return itemStorage.getItemByOwner(owner).stream()
+        List<ItemDto> items = itemStorage.getItemByOwner(owner).stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+        log.info("getItemByOwner.Ok!");
+        return items;
     }
 
     @Override
     public List<ItemDto> getItemSearch(String text) {
         if (text == null || text.isBlank()) return Collections.emptyList();
         String searchText = text.toLowerCase();
-        log.info("Ok!");
-        return itemStorage.getItemSearch(searchText)
+        List<ItemDto> items = itemStorage.getItemSearch(searchText)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+        log.info("getItemSearch.Ok!");
+        return items;
     }
 }
