@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.storage;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
@@ -65,7 +64,7 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public List<Item> getItemSearch(String text) {
         return items.values().stream()
-                .filter(Item::isAvailable)
+                .filter(Item::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
                         item.getDescription().toLowerCase().contains(text.toLowerCase()))
                 .collect(Collectors.toList());

@@ -7,21 +7,21 @@ import ru.practicum.shareit.item.model.Item;
 @Component
 public class ItemMapper {
     public ItemDto toItemDto(Item item) {
-        return item == null ? null : ItemDto.builder()
+        return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .isAvailable(item.isAvailable())
+                .available(item.getAvailable())
                 .request(item.getRequest())
                 .build();
     }
 
     public Item toItem(ItemDto itemDto, Long owner) {
-        return itemDto == null ? null : Item.builder()
+        return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
-                .isAvailable(itemDto.isAvailable())
+                .available(itemDto.getAvailable())
                 .request(itemDto.getRequest())
                 .owner(owner)
                 .build();

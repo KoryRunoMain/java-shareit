@@ -9,7 +9,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import javax.validation.ValidationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,10 +81,10 @@ public class UserServiceImpl implements UserService {
 
     private void validateCreateUser(UserDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new ValidationException("Email не может быть пустым");
+            throw new AlreadyExistsException("Email не может быть пустым");
         }
         if (userDto.getName() == null || userDto.getName().isBlank()) {
-            throw new ValidationException("Name не может быть пустым");
+            throw new AlreadyExistsException("Name не может быть пустым");
         }
     }
 

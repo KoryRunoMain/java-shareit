@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ValidationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,8 +34,10 @@ public class ItemServiceImpl implements ItemService {
         if (userService.getUserById(userId) == null) {
             throw new NotFoundException("Not Found!");
         }
-        Item item = itemMapper.toItem(itemDto, userId);
-        ItemDto createItemDto = itemMapper.toItemDto(itemStorage.create(item));
+        if (itemDto.getAvailable() == null) {
+            throw new ValidationException("UnValidated!");
+        }
+        ItemDto createItemDto = itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));
         log.info("create.Ok!");
         return createItemDto;
     }
@@ -53,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
         }
         oldItem.setName(itemDto.getName() != null ? itemDto.getName() : oldItem.getName());
         oldItem.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : oldItem.getDescription());
-        oldItem.setAvailable(itemDto.isAvailable());
+        oldItem.setAvailable(itemDto.getAvailable());
         log.info("Ok!");
         return itemMapper.toItemDto(itemStorage.update(itemMapper.toItem(itemDto, ownerId)));
     }

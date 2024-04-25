@@ -14,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
+
     private Long id;
 
     @NotBlank
@@ -22,4 +23,5 @@ public class User {
     @NotBlank
     @Email
     private String email;
+
 }

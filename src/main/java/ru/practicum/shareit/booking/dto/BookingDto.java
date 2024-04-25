@@ -10,9 +10,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class BookingDto {
+
     private LocalDateTime start;
+
     private LocalDateTime end;
+
     private Long item;
+
     private Long booker;
+
     private String status;
+
 }
