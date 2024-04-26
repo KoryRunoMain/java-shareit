@@ -2,12 +2,10 @@ package ru.practicum.shareit.user.storage;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
-
 import java.util.*;
 
 @Repository
 public class UserStorageImpl implements UserStorage {
-
     private final Map<Long, User> users;
     private Long id;
 
@@ -61,5 +59,4 @@ public class UserStorageImpl implements UserStorage {
                 .map(User::getId)
                 .findFirst();
     }
-
 }

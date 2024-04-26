@@ -9,7 +9,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
-
     private UserStorage userStorage;
     private UserMapper userMapper;
 
@@ -92,5 +90,4 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistsException("checkUserExists.EmailIsAlreadyTaken!");
         }
     }
-
 }

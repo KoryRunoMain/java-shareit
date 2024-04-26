@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.storage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 @Repository
 @AllArgsConstructor
 public class ItemStorageImpl implements ItemStorage {
-
     private Map<Long, Item> items;
     private Long id;
 
@@ -69,5 +67,4 @@ public class ItemStorageImpl implements ItemStorage {
                         item.getDescription().toLowerCase().contains(text.toLowerCase()))
                 .collect(Collectors.toList());
     }
-
 }

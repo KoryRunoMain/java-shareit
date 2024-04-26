@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
-
 import java.util.List;
 
 @Slf4j
@@ -15,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
-
     private UserService userService;
     private ItemService itemService;
 
@@ -51,5 +49,4 @@ public class UserController {
         itemService.deleteItemsByOwner(userId);
         return userService.delete(userId);
     }
-
 }

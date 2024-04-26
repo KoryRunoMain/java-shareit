@@ -12,7 +12,6 @@ import ru.practicum.shareit.ErrorResponse;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationExceptionHandle(ValidationException e) {
@@ -50,5 +49,4 @@ public class ErrorHandler {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
-
 }

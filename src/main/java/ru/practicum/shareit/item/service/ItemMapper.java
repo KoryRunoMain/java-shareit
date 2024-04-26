@@ -6,7 +6,6 @@ import ru.practicum.shareit.item.model.Item;
 
 @Component
 public class ItemMapper {
-
     public ItemDto toItemDto(Item item) {
         return item == null ? null : ItemDto.builder()
                 .id(item.getId())
@@ -27,5 +26,4 @@ public class ItemMapper {
                 .owner(owner)
                 .build();
     }
-
 }

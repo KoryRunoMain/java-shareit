@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
-
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final ItemStorage itemStorage;
@@ -97,5 +95,4 @@ public class ItemServiceImpl implements ItemService {
         log.info("getItemSearch.Ok!");
         return items;
     }
-
 }

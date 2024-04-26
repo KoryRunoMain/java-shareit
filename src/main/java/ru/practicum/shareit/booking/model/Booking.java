@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.enums.BookingStatus;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Booking {
-
     private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
@@ -27,5 +25,4 @@ public class Booking {
     private Long booker;
     @NotNull
     private BookingStatus status;
-
 }

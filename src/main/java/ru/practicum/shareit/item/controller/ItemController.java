@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
-
 import java.util.List;
 
 @Slf4j
@@ -14,7 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
-
     private static final String OWNER_ID = "X-Sharer-User-Id";
     private ItemService itemService;
 
@@ -54,5 +52,4 @@ public class ItemController {
         log.info("Patch-request update: userId {}, itemId {}, itemDto {}", userId, itemId, itemDto);
         return itemService.update(itemDto, itemId, userId);
     }
-
 }

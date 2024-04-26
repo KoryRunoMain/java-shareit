@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemStorageTest {
-
     private ItemStorage itemStorage;
 
     void init() {
@@ -34,6 +33,5 @@ public class ItemStorageTest {
             itemStorage.create(newItem);
         }).doesNotThrowAnyException();
     }
-
 }
 
