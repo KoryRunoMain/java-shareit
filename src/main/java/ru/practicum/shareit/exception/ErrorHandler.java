@@ -50,4 +50,5 @@ public class ErrorHandler {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
+
 }

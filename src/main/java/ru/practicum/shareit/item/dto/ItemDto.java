@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ItemDto {
+
     private Long id;
     @NotBlank
     private String name;
@@ -17,4 +18,5 @@ public class ItemDto {
     private String description;
     private Boolean available;
     private Long request;
+
 }

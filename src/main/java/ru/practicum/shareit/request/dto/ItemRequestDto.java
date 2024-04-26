@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /*
     TODO MB NEXT SPRINT
- */
+*/
 
 @Data
 @AllArgsConstructor
@@ -16,9 +16,7 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
 
     private String description;
-
     private String requestor;
-
     private LocalDateTime created;
 
 }

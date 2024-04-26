@@ -6,6 +6,7 @@ import ru.practicum.shareit.user.model.User;
 
 @Component
 public class UserMapper {
+
     public User toUser(UserDto userDto) {
         return userDto == null ? null : User.builder()
                 .id(userDto.getId())
@@ -21,4 +22,5 @@ public class UserMapper {
                 .email(user.getEmail())
                 .build();
     }
+
 }

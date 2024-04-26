@@ -14,8 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ItemRequest {
+
     private Long id;
     private String description;
     private String requestor;
     private LocalDateTime created;
+
 }

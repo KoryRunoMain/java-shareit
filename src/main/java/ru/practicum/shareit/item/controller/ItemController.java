@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
+
     private static final String OWNER_ID = "X-Sharer-User-Id";
     private ItemService itemService;
 
@@ -53,4 +54,5 @@ public class ItemController {
         log.info("Patch-request update: userId {}, itemId {}, itemDto {}", userId, itemId, itemDto);
         return itemService.update(itemDto, itemId, userId);
     }
+
 }

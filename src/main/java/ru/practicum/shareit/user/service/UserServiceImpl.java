@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
+
     private UserStorage userStorage;
     private UserMapper userMapper;
 
@@ -91,4 +92,5 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistsException("checkUserExists.EmailIsAlreadyTaken!");
         }
     }
+
 }

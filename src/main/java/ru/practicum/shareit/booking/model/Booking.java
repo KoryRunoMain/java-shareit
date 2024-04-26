@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 
 /*
     TODO MB NEXT SPRINT
- */
+*/
 
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Booking {
+
     private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
@@ -26,4 +27,5 @@ public class Booking {
     private Long booker;
     @NotNull
     private BookingStatus status;
+
 }

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
+
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final ItemStorage itemStorage;
@@ -96,4 +97,5 @@ public class ItemServiceImpl implements ItemService {
         log.info("getItemSearch.Ok!");
         return items;
     }
+
 }
