@@ -26,4 +26,11 @@ public class ItemMapper {
                 .owner(owner)
                 .build();
     }
+
+    public void updateItemDto(ItemDto itemDto, Item itemToUpdate, Long itemId) {
+        itemDto.setName(itemDto.getName() != null ? itemDto.getName() : itemToUpdate.getName());
+        itemDto.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : itemToUpdate.getDescription());
+        itemDto.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : itemToUpdate.getAvailable());
+        itemDto.setId(itemDto.getId() != null ? itemDto.getId() : itemId);
+    }
 }

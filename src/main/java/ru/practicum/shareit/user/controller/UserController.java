@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.List;
 @RequestMapping(path = "/users")
 public class UserController {
     private UserService userService;
-    private ItemService itemService;
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
@@ -46,7 +44,6 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public UserDto delete(@PathVariable Long userId) {
         log.info("Delete-request delete: userId {}", userId);
-        itemService.deleteItemsByOwner(userId);
         return userService.delete(userId);
     }
 }

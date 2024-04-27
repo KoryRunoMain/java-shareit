@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -24,37 +25,35 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto get(Long itemId) {
         ItemDto getItemDto = itemMapper.toItemDto(itemStorage.getItemId(itemId));
-        log.info("get.Ok!");
+        log.info("method: get |Request/Response|" + "itemId:{} / itemId:{}",
+                itemId, getItemDto);
         return getItemDto;
     }
 
     @Override
     public ItemDto create(ItemDto itemDto, Long userId) {
         if (userService.get(userId) == null) {
-            throw new NotFoundException("create.NotFound!");
+            throw new NotFoundException("fail: create.getUser() User is Null!");
         }
         if (itemDto.getAvailable() == null) {
-            throw new ValidationException("create.InValidField!");
+            throw new ValidationException("fail: create.getAvailable() Available is Null!");
         }
-        ItemDto createItemDto = itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));
-        log.info("create.Ok!");
-        return createItemDto;
+        ItemDto createdItemDto = itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto, userId)));
+        log.info("method: create |Request/Response|" + "itemDto:{}, userId:{} / createdItemDto:{}",
+                itemDto, userId, createdItemDto);
+        return createdItemDto;
     }
 
     @Override
     public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
         Item itemToUpdate = itemStorage.getItemId(itemId);
-
-        itemDto.setName(itemDto.getName() != null ? itemDto.getName() : itemToUpdate.getName());
-        itemDto.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : itemToUpdate.getDescription());
-        itemDto.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : itemToUpdate.getAvailable());
-        itemDto.setId(itemDto.getId() != null ? itemDto.getId() : itemId);
-
         if (userService.get(ownerId) == null || !itemToUpdate.getOwner().equals(ownerId)) {
-            throw new NotFoundException("update.NotFound!");
+            throw new NotFoundException("fail: update.getOwner() Item Not Found!");
         }
+        itemMapper.updateItemDto(itemDto, itemToUpdate, itemId);
         ItemDto updatedItemDto = itemMapper.toItemDto(itemStorage.update(itemMapper.toItem(itemDto, ownerId)));
-        log.info("update.Ok!");
+        log.info("method: update |Request/Response|" + "itemDto:{}, itemId:{}, userId:{} / createdItemDto:{}",
+                itemDto, itemId, ownerId, updatedItemDto);
         return updatedItemDto;
     }
 
@@ -62,17 +61,19 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto delete(Long itemId, Long ownerId) {
         Item item = itemStorage.getItemId(itemId);
         if (!item.getOwner().equals(ownerId)) {
-            throw new NotFoundException("delete.NotFound!");
+            throw new NotFoundException("fail: delete.getOwner() Owner of item Not Found!");
         }
-        ItemDto deleteItemDto = itemMapper.toItemDto(itemStorage.delete(itemId));
-        log.info("delete.Ok!");
-        return deleteItemDto;
+        ItemDto deletedItemDto = itemMapper.toItemDto(itemStorage.delete(itemId));
+        log.info("method: delete |Request/Response|" + "itemId:{} / deletedItemDto:{}",
+                itemId, ownerId);
+        return deletedItemDto;
     }
 
     @Override
     public void deleteItemsByOwner(Long owner) {
         itemStorage.deleteItemsByOwner(owner);
-        log.info("deleteItemsByOwner.Ok!");
+        log.info("method: deleteItemsByOwner |Request|" + "owner:{}",
+                owner);
     }
 
     @Override
@@ -80,19 +81,23 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> items = itemStorage.getItemByOwner(owner).stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
-        log.info("getItemByOwner.Ok!");
+        log.info("method: getItemByOwner |Response|" + "items:{}",
+                items);
         return items;
     }
 
     @Override
     public List<ItemDto> getItemSearch(String text) {
-        if (text == null || text.isBlank()) return Collections.emptyList();
+        if (text == null || text.isBlank()) {
+            return Collections.emptyList();
+        }
         String searchText = text.toLowerCase();
         List<ItemDto> items = itemStorage.getItemSearch(searchText)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
-        log.info("getItemSearch.Ok!");
+        log.info("method: getItemSearch |Request/Response|" + "search:{} / items:{}",
+                text, items);
         return items;
     }
 }

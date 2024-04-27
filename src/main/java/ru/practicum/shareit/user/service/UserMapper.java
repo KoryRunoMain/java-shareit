@@ -21,4 +21,11 @@ public class UserMapper {
                 .email(user.getEmail())
                 .build();
     }
+
+    public void updateUserDto(UserDto userDto,User userToUpdate,Long userId) {
+        userToUpdate.setEmail(userDto.getEmail() != null && !userDto.getEmail().isEmpty()
+                && userDto.getEmail().contains("@") ? userDto.getEmail() : userToUpdate.getEmail());
+        userToUpdate.setName(userDto.getName() != null
+                && !userDto.getName().isEmpty() ? userDto.getName() : userToUpdate.getName());
+    }
 }

@@ -12,9 +12,9 @@ import ru.practicum.shareit.user.storage.UserStorage;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
     private UserStorage userStorage;
     private UserMapper userMapper;
@@ -22,7 +22,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto get(Long userId) {
         UserDto getUserDto = userMapper.toUserDto(userStorage.get(userId));
-        log.info("get.Ok!");
+        log.info("method: get |Request/Response|" + "userId:{} / userId:{}",
+                userId, getUserDto);
         return getUserDto;
     }
 
@@ -31,7 +32,8 @@ public class UserServiceImpl implements UserService {
         validateCreateUser(userDto);
         checkUserExists(userDto.getEmail());
         UserDto createdUserDto = userMapper.toUserDto(userStorage.create(userMapper.toUser(userDto)));
-        log.info("create.Ok!");
+        log.info("method: create |Request/Response|" + "userDto:{} / createdUserDto:{}",
+                userDto, createdUserDto);
         return createdUserDto;
     }
 
@@ -39,31 +41,29 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto, Long userId) {
         User userToUpdate = userStorage.get(userId);
         if (userToUpdate == null) {
-            throw new NotFoundException("update.NotFound!");
+            throw new NotFoundException("fail: update.getUser() User Not Found!");
         }
         userStorage.getUsers().stream()
                 .filter(u -> !u.getId().equals(userId) && u.getEmail().equals(userDto.getEmail()))
                 .findFirst()
                 .ifPresent(user -> {
-                    throw new AlreadyExistsException("update.EmailIsAlreadyTaken!");
+                    throw new AlreadyExistsException("fail: update.getEmail() Email Is Already Taken!");
                 });
-        userToUpdate.setEmail(userDto.getEmail() != null && !userDto.getEmail().isEmpty()
-                && userDto.getEmail().contains("@") ? userDto.getEmail() : userToUpdate.getEmail());
-        userToUpdate.setName(userDto.getName() != null && !userDto.getName().isEmpty() ?
-                userDto.getName() : userToUpdate.getName());
-
+        userMapper.updateUserDto(userDto, userToUpdate, userId);
         UserDto updatedUserDto = userMapper.toUserDto(userStorage.update(userToUpdate));
-        log.info("update.Ok!");
+        log.info("method: update |Request/Response|" + "userDto:{}, userId:{} / updatedUserDto:{}",
+                userDto, userId, updatedUserDto);
         return updatedUserDto;
     }
 
     @Override
     public UserDto delete(Long userId) {
         if (!userStorage.isContains(userId)) {
-            throw new NotFoundException("delete.NotFound!");
+            throw new NotFoundException("fail: delete.isContains() User Not Found!");
         }
         UserDto deleteUserDto = userMapper.toUserDto(userStorage.delete(userId));
-        log.info("delete.Ok!");
+        log.info("method: delete |Request/Response|" + "userId:{} / deleteUserDto:{}",
+                userId, deleteUserDto);
         return deleteUserDto;
     }
 
@@ -72,22 +72,23 @@ public class UserServiceImpl implements UserService {
         List<UserDto> getUsersDto = userStorage.getUsers().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
-        log.info("getUsers.Ok!");
+        log.info("method: getUsers |Response|" + "ListUsers:{}",
+                getUsersDto);
         return getUsersDto;
     }
 
     private void validateCreateUser(UserDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new ValidationException("validateCreateUser.InValidField!");
+            throw new ValidationException("fail: validateCreateUser.getEmail() is Null or isBlank!");
         }
         if (userDto.getName() == null || userDto.getName().isBlank()) {
-            throw new ValidationException("validateCreateUser.InValidField!");
+            throw new ValidationException("fail: validateCreateUser.getName() is Null or isBlank!");
         }
     }
 
     private void checkUserExists(String email) {
         if (userStorage.getUserByEmail(email).isPresent()) {
-            throw new AlreadyExistsException("checkUserExists.EmailIsAlreadyTaken!");
+            throw new AlreadyExistsException("fail: checkUserExists.getUserByEmail() Email Is Already Taken!");
         }
     }
 }
