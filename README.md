@@ -1,2 +1,54 @@
-# java-shareit
-Template repository for Shareit project.
+# Shareit
+
+### Описание проекта
+
+Restful API back-end сервис для шеринга вещей.
+
+#### Основные особенности проекта:
+
+- Разработан с использованием фреймворка Spring Boot;
+- 11 End-points доступных для управления данными.
+
+## Содержание:
+
+1. [Стэк проекта](#стэк-проекта)
+2. [Функционал](#функционал)
+3. [Ход проекта](#ход-проекта)
+
+## Стэк проекта
+
+- Java 11, Spring Boot, Maven, Lombok, SpringBootTest, Postman
+- Зависимости: [pom.xml](pom.xml)
+- Тесты: [tests](.postman)
+
+## Функционал
+
+### EndPoints:
+
+#### Пользователи:
+
++ GET /users - Получить все пользователей;
++ GET /users/{id} - Получить пользователя по ID;
++ POST /users - Добавить пользователя;
++ PATCH /users/{userId} - Обновить пользователя по ID;
++ DELETE /users/{userId} - Удалить пользователя по ID;
+
+#### Вещи:
+
++ GET /items - Получить все пользователей;
++ GET /items/{itemId} - Получить вещь по ID;
++ GET /items/search - Найти вещь;
++ POST /items - Добавить вещь;
++ PATCH /items/{itemId} - Обновить вещь по ID;
++ DELETE /items/{itemId} - Удалить вещь по ID;
+
+## Ход проекта
+
+#### График проекта
+
+| Спринт    | Этап | Отметка |
+|-----------|------|---------|
+| Spring 13 | 1    |         |
+| Spring 14 | 2    |         |
+| Spring 15 | 3    |         |
+| Spring 16 | 4    |         |

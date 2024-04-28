@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.booking.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,12 +10,13 @@ import java.time.LocalDateTime;
 
 /*
     TODO MB NEXT SPRINT
- */
+*/
 
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class BookingDto {
+public class Booking {
+    private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
     @NotBlank
