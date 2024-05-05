@@ -14,42 +14,42 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private static final String OWNER_ID = "X-Sharer-User-Id";
-    private ItemService itemService;
+    private ItemService service;
 
     @GetMapping("/{itemId}")
     public ItemDto getItem(@PathVariable Long itemId) {
         log.info("Get-request getItem: itemId {}", itemId);
-        return itemService.get(itemId);
+        return service.findItemById(itemId);
     }
 
     @GetMapping
     public List<ItemDto> getItemByOwner(@RequestHeader(OWNER_ID) Long userId) {
         log.info("Get-request getItemByOwner: userId {}", userId);
-        return itemService.getItemByOwner(userId);
+        return service.findItemByOwner(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getItemSearch(@RequestParam String text) {
         log.info("Get-request getItemSearch: text {}", text);
-        return itemService.getItemSearch(text);
+        return service.searchItem(text);
     }
 
     @PostMapping
     public ItemDto createItem(@Validated @RequestBody ItemDto itemDto, @RequestHeader(OWNER_ID) Long userId) {
         log.info("Post-request create: userId {}, itemDto {}", userId, itemDto);
-        return itemService.create(itemDto, userId);
+        return service.createItem(itemDto, userId);
     }
 
     @PostMapping("/{itemId}")
-    public ItemDto deleteItem(@PathVariable Long itemId, @RequestHeader(OWNER_ID) Long userId) {
+    public void deleteItem(@PathVariable Long itemId, @RequestHeader(OWNER_ID) Long userId) {
         log.info("Post-request delete: userId {}, itemId {}", userId, itemId);
-        return itemService.delete(itemId, userId);
+        service.deleteItemById(itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
                               @RequestHeader(OWNER_ID) Long userId) {
         log.info("Patch-request update: userId {}, itemId {}, itemDto {}", userId, itemId, itemDto);
-        return itemService.update(itemDto, itemId, userId);
+        return service.saveItem(itemDto, itemId, userId);
     }
 }

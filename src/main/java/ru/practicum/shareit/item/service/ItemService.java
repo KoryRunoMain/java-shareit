@@ -7,18 +7,16 @@ import java.util.List;
 @Service
 public interface ItemService {
 
-    ItemDto get(Long itemId);
+    ItemDto createItem(ItemDto itemDto, Long userId);
 
-    ItemDto create(ItemDto itemDto, Long userId);
+    ItemDto saveItem(ItemDto itemDto, Long itemId, Long ownerId);
 
-    ItemDto update(ItemDto itemDto, Long itemId, Long ownerId);
+    ItemDto findItemById(Long itemId);
 
-    ItemDto delete(Long itemId, Long ownerId);
+    List<ItemDto> findItemByOwner(Long owner);
 
-    void deleteItemsByOwner(Long owner);
+    List<ItemDto> searchItem(String text);
 
-    List<ItemDto> getItemByOwner(Long owner);
-
-    List<ItemDto> getItemSearch(String text);
+    void deleteItemById(Long itemId, Long ownerId);
 
 }

@@ -13,37 +13,37 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
-    private UserService userService;
+    private UserService service;
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
         log.info("Get-request getUser: userId {}", userId);
-        return userService.get(userId);
+        return service.findUserById(userId);
     }
 
     @GetMapping
     public List<UserDto> getUsers() {
         log.info("Get-request getUsers");
-        return userService.getUsers();
+        return service.findAllUsers();
     }
 
     @ResponseBody
     @PostMapping
     public UserDto createItem(@Validated @RequestBody UserDto userDto) {
         log.info("Post-request createItem: userDto {}", userDto);
-        return userService.create(userDto);
+        return service.createUser(userDto);
     }
 
     @ResponseBody
     @PatchMapping("/{userId}")
     public UserDto update(@RequestBody UserDto userDto, @PathVariable Long userId) {
         log.info("Patch-request update: userID {}, userDto {}", userId, userDto);
-        return userService.update(userDto, userId);
+        return service.saveUser(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")
-    public UserDto delete(@PathVariable Long userId) {
+    public void delete(@PathVariable Long userId) {
         log.info("Delete-request delete: userId {}", userId);
-        return userService.delete(userId);
+        service.deleteUserById(userId);
     }
 }
