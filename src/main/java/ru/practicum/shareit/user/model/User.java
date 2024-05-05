@@ -4,18 +4,25 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
 @Data
-@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder(toBuilder = true)
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+
+    @Column(name = "name", nullable = false)
     private String name;
-    @NotBlank
-    @Email
+
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
+
 }

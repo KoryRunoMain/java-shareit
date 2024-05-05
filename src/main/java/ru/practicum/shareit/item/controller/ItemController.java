@@ -13,43 +13,51 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
+
     private static final String OWNER_ID = "X-Sharer-User-Id";
-    private ItemService itemService;
+    private ItemService service;
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable Long itemId) {
+    public ItemDto getItem(@PathVariable Long itemId,
+                       @RequestHeader(OWNER_ID) Long userId) {
         log.info("Get-request getItem: itemId {}", itemId);
-        return itemService.get(itemId);
+        return service.getById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemByOwner(@RequestHeader(OWNER_ID) Long userId) {
-        log.info("Get-request getItemByOwner: userId {}", userId);
-        return itemService.getItemByOwner(userId);
+    public List<ItemDto> getAllItems(@RequestHeader(OWNER_ID) Long userId) {
+        log.info("Get-request getAllItems: userId {}", userId);
+        return service.getAll(userId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getItemSearch(@RequestParam String text) {
+    public List<ItemDto> searchItem(@RequestParam String text) {
         log.info("Get-request getItemSearch: text {}", text);
-        return itemService.getItemSearch(text);
+        return service.search(text);
     }
 
     @PostMapping
-    public ItemDto createItem(@Validated @RequestBody ItemDto itemDto, @RequestHeader(OWNER_ID) Long userId) {
+    public ItemDto createItem(@Validated @RequestBody ItemDto itemDto,
+                              @RequestHeader(OWNER_ID) Long userId) {
         log.info("Post-request create: userId {}, itemDto {}", userId, itemDto);
-        return itemService.create(itemDto, userId);
+        return service.create(itemDto, userId);
     }
 
     @PostMapping("/{itemId}")
-    public ItemDto deleteItem(@PathVariable Long itemId, @RequestHeader(OWNER_ID) Long userId) {
+    public void deleteItem(@PathVariable Long itemId,
+                           @RequestHeader(OWNER_ID) Long userId) {
         log.info("Post-request delete: userId {}, itemId {}", userId, itemId);
-        return itemService.delete(itemId, userId);
+        service.delete(itemId, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
+    public ItemDto saveItem(@RequestBody ItemDto itemDto,
+                              @PathVariable Long itemId,
                               @RequestHeader(OWNER_ID) Long userId) {
         log.info("Patch-request update: userId {}, itemId {}, itemDto {}", userId, itemId, itemDto);
-        return itemService.update(itemDto, itemId, userId);
+        return service.save(itemDto, itemId, userId);
     }
+
+    // POST /items/{itemId}/comment
+
 }

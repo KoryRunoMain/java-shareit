@@ -4,25 +4,36 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.enums.BookingStatus;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/*
-    TODO MB NEXT SPRINT
-*/
-
+@Entity
+@Table(name = "bookings")
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Booking {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime start;
+
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
-    @NotBlank
+
+    @JoinColumn(name = "item_id", nullable = false)
+    @ManyToOne
     private Long item;
-    @NotBlank
+
+    @JoinColumn(name = "booker_id")
+    @ManyToOne
     private Long booker;
-    @NotNull
+
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
+
 }
