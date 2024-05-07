@@ -3,17 +3,20 @@ package ru.practicum.shareit.item.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.comments.dto.CommentDto;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
-@Table(name = "items")
 @Data
+@Entity
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "items")
 @Builder(toBuilder = true)
 public class Item {
 
@@ -30,13 +33,13 @@ public class Item {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
 
-    @Column(name = "request_id")
     @ManyToOne
-    private ItemRequest request;
+    @JoinColumn(name = "request_id")
+    private ItemRequest itemRequest;
 
-    @Column(name = "owner_id", nullable = false)
     @ManyToOne
-    private Long owner;
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 
     @Transient
     private Booking lastBooking;

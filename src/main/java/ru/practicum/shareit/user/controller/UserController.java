@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
-    private UserService service;
+    private final UserService service;
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
@@ -27,16 +27,15 @@ public class UserController {
         return service.getAll();
     }
 
-    @ResponseBody
     @PostMapping
     public UserDto createUser(@Validated @RequestBody UserDto userDto) {
         log.info("Post-request createItem: userDto {}", userDto);
         return service.create(userDto);
     }
 
-    @ResponseBody
     @PatchMapping("/{userId}")
-    public UserDto saveUser(@RequestBody UserDto userDto, @PathVariable Long userId) {
+    public UserDto updateUser(@RequestBody UserDto userDto,
+                              @PathVariable Long userId) {
         log.info("Patch-request update: userID {}, userDto {}", userId, userDto);
         return service.save(userDto, userId);
     }
@@ -46,4 +45,5 @@ public class UserController {
         log.info("Delete-request delete: userId {}", userId);
         service.delete(userId);
     }
+
 }

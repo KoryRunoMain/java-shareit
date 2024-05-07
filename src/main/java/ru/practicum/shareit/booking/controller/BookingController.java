@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.InputBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
@@ -14,36 +15,36 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping(path = "/bookings")
 public class BookingController {
-
     private static final String OWNER_ID = "X-Sharer-User-Id";
-    private final BookingService bookingService;
+    private final BookingService service;
+
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@RequestParam Long bookingId,
+    public BookingDto getBooking(@PathVariable Long bookingId,
                                  @RequestHeader(OWNER_ID) Long userId) {
         log.info("Get-request getBooking: userId{}, bookingId{}", userId, bookingId);
-        return bookingService.getById(userId, bookingId);
+        return service.getById(userId, bookingId);
     }
 
     @GetMapping
     public List<BookingDto> getAllUserBookings(@RequestParam(defaultValue = "ALL") String state,
                                                @RequestHeader(OWNER_ID) Long userId) {
         log.info("Get-request getAllUserBookings: userId{}, state{}", userId, state);
-        return bookingService.getAllUserBookings(userId, state);
+        return service.getAllUserBookings(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
                                                 @RequestHeader(OWNER_ID) Long owner) {
         log.info("Get-request getAllOwnerBookings: ownerId{}, state{}", owner, state);
-        return bookingService.getAllOwnerBookings(owner, state);
+        return service.getAllOwnerBookings(owner, state);
     }
 
     @PostMapping
-    public BookingDto createBooking(@Validated @RequestBody BookingDto bookingDto,
+    public BookingDto createBooking(@Validated @RequestBody InputBookingDto inputBookingDto,
                                     @RequestHeader(OWNER_ID) Long userId) {
-        log.info("Post-request createBooking: userId{}, bookingDto{}", userId, bookingDto);
-        return bookingService.create(bookingDto, userId);
+        log.info("Post-request createBooking: userId{}, bookingDto{}", userId, inputBookingDto);
+        return service.create(inputBookingDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
@@ -51,7 +52,7 @@ public class BookingController {
                                      @RequestParam Boolean approved,
                                      @RequestHeader(OWNER_ID) Long userId) {
         log.info("Path-request approveBooking: userId{}, bookingId{}, approve{}", userId, bookingId, approved);
-        return bookingService.approve(userId, bookingId, approved);
+        return service.approve(userId, bookingId, approved);
     }
 
 }

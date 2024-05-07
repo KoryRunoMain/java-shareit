@@ -5,13 +5,13 @@ import java.util.List;
 
 public interface UserService {
 
-    UserDto create(UserDto userDto);
-
-    UserDto save(UserDto userDto, Long id);
-
     UserDto getById(Long userId);
 
     List<UserDto> getAll();
+
+    UserDto create(UserDto userDto);
+
+    UserDto save(UserDto userDto, Long id);
 
     void delete(Long userId);
 

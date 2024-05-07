@@ -3,15 +3,19 @@ package ru.practicum.shareit.booking.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "bookings")
 @Data
+@Entity
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "bookings")
 @Builder(toBuilder = true)
 public class Booking {
 
@@ -25,13 +29,13 @@ public class Booking {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
 
+    @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
-    @ManyToOne
-    private Long item;
+    private Item item;
 
-    @JoinColumn(name = "booker_id")
     @ManyToOne
-    private Long booker;
+    @JoinColumn(name = "booker_id")
+    private User booker;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
