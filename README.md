@@ -7,7 +7,7 @@ Restful API back-end сервис для шеринга вещей.
 #### Основные особенности проекта:
 
 - Разработан с использованием фреймворка Spring Boot;
-- База данных H2;
+- База данных h2database. Общение с БД на Query Methods и JPQL;
 - 16 End-points доступных для управления данными.
 
 ## Содержание:
@@ -16,10 +16,11 @@ Restful API back-end сервис для шеринга вещей.
 2. [Функционал](#функционал)
 3. [ER-diagram](#er-diagram)
 4. [Ход проекта](#ход-проекта)
+5. [Инструкция](#пошаговая-инструкция-по-установке-и-запуску-проета)
 
 ## Стэк проекта
 
-- Java 11, Spring Boot, Maven, Lombok, SpringBootTest, Postman
+- Java 11, Spring Boot, Maven, Lombok, JPQL, Query Methods, Postman
 - База данных: [schema.sql](src/main/resources/schema.sql)
 - Зависимости: [pom.xml](pom.xml)
 - Тесты: [tests](.postman)
@@ -72,3 +73,29 @@ Restful API back-end сервис для шеринга вещей.
 | Spring 14 | 2  | bookings and comments              |         |
 | Spring 15 | 3  | requests and mok-tests             |         |
 | Spring 16 | 4  | ???                                |         |
+
+
+## Пошаговая инструкция по установке и запуску проета
+
+1. Установите Git: Если у вас еще не установлен Git, загрузите и установите его с официального сайта
+   Git: https://git-scm.com/.
+2. Клонируйте репозиторий: Откройте командную строку или терминал и выполните команду клонирования для репозитория
+   GitHub. Например:
+
+```
+git clone https://github.com/KoryRunoMain/java-shareit.git
+```
+
+3. Откройте проект в IDE: Откройте вашу среду разработки (IDE), такую как IntelliJ IDEA, Eclipse или NetBeans.
+4. Импортируйте проект как Maven проект: Если вы используете IntelliJ IDEA,
+   выберите File -> Open и выберите папку, в которую был склонирован репозиторий.
+   IntelliJ IDEA должна автоматически распознать проект как Maven проект и импортировать его.
+   В Eclipse вы можете выбрать File -> Import -> Existing Maven Projects и выбрать корневую папку проекта.
+   В NetBeans вы можете выбрать File -> Open Project и выбрать папку проекта.
+5. Запустите приложение: точка входа находится в классе [SharItApp](src/main/java/ru/practicum/shareit/ShareItApp.java) помеченном аннотацией
+   @SpringBootApplication.
+   Либо запустить через Maven:
+
+```
+mvn spring-boot:run
+```
