@@ -52,7 +52,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(InvalidStateException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse InvalidStateException(InvalidStateException e) {
+    public ErrorResponse invalidStateException(InvalidStateException e) {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
