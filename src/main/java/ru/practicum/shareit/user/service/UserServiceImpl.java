@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(Long userId) {
         UserDto userDto = userMapper.toUserDto(repository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("fail: user/owner ID Not Found!")));
-        log.info("method: getById |Request/Response|" + "userId:{} / userId:{}", userId, userDto);
+        log.info("method: getById |Request/Response|" + " userId:{} / userId:{}", userId, userDto);
         return userDto;
     }
 
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto userDto) {
         User user = repository.save(userMapper.toUser(userDto));
         UserDto createdUserDto = userMapper.toUserDto(user);
-        log.info("method: create |Request/Response|" + "userDto:{} / createdUser:{}", userDto, createdUserDto);
+        log.info("method: create |Request/Response|" + " userDto:{} / createdUser:{}", userDto, createdUserDto);
         return createdUserDto;
     }
 
@@ -51,8 +51,9 @@ public class UserServiceImpl implements UserService {
         }
         userMapper.updateUserDto(userDto, user);
         repository.save(user);
+
         UserDto updatedUserDto = userMapper.toUserDto(user);
-        log.info("method: save |Request/Response|" + "userDto:{}, userId:{} / updatedUserDto:{}",
+        log.info("method: save |Request/Response|" + " userDto:{}, userId:{} / updatedUserDto:{}",
                 userDto, userId, updatedUserDto);
         return updatedUserDto;
     }
@@ -60,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long userId) {
         repository.deleteById(userId);
-        log.info("method: delete |Request|" + "userId:{}", userId);
+        log.info("method: delete |Request|" + " userId:{}", userId);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
         List<UserDto> usersDto = repository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
-        log.info("method: getAll |Response|" + "list of users:{}", usersDto);
+        log.info("method: getAll |Response|" + " list of users:{}", usersDto);
         return usersDto;
     }
 

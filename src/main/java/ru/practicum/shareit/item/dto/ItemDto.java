@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dto;
 import lombok.*;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -31,6 +32,8 @@ public class ItemDto {
     private ShortBookingDto lastBooking;
 
     private ShortBookingDto nextBooking;
+
+    private User owner;
 
     private List<CommentDto> comments;
 

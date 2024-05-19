@@ -12,8 +12,6 @@ public interface ItemService {
 
     ItemDto getById(Long itemId);
 
-    Long getOwnerId(Long itemId);
-
     List<ItemDto> getAll(Long ownerId);
 
     List<ItemDto> search(String text);

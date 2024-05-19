@@ -12,6 +12,7 @@ public class ItemMapper {
     public ItemDto toItemDto(Item item) {
         return item == null ? null : ItemDto.builder()
                 .id(item.getId())
+                .owner(item.getOwner())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())

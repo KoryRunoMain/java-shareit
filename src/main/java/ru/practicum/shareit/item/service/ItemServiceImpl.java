@@ -52,7 +52,7 @@ public class ItemServiceImpl implements ItemService {
         repository.save(createdItem);
 
         ItemDto createdItemDto = itemMapper.toItemDto(createdItem);
-        log.info("method: create |Request/Response|" + "itemDto:{}, userId:{} / createdItemDto:{}",
+        log.info("method: create |Request/Response|" + " itemDto:{}, userId:{} / createdItemDto:{}",
                 itemDto, userId, createdItemDto);
         return createdItemDto;
     }
@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
         repository.save(itemToUpdate);
 
         ItemDto updatedItemDto = itemMapper.toItemDto(itemToUpdate);
-        log.info("method: save |Request/Response|" + "itemDto:{}, itemId:{}, userId:{} / createdItemDto:{}",
+        log.info("method: save |Request/Response|" + " itemDto:{}, itemId:{}, userId:{} / createdItemDto:{}",
                 itemDto, itemId, userId, updatedItemDto);
         return updatedItemDto;
     }
@@ -89,20 +89,15 @@ public class ItemServiceImpl implements ItemService {
                 .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList());
         itemDto.setComments(comments);
-        log.info("method: getById |Request/Response|" + "itemId:{} , userId:{} / itemDto:{}", itemId, userId, itemDto);
+        log.info("method: getById |Request/Response|" + " itemId:{} , userId:{} / itemDto:{}", itemId, userId, itemDto);
         return itemDto;
     }
 
     public ItemDto getById(Long itemId) {
-        return itemMapper.toItemDto(repository.findById(itemId)
+        ItemDto itemDto = itemMapper.toItemDto(repository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("itemId not Found!")));
-    }
-
-    @Override
-    public Long getOwnerId(Long itemId) {
-        return repository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("fail: itemId Not Found!"))
-                .getOwner().getId();
+        log.info("method: getById |Request/Response|" + " itemId: {} / itemDto: {}", itemId, itemDto);
+        return itemDto;
     }
 
     @Override
@@ -115,7 +110,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
 
         List<ItemDto> itemDtoList = getItemDtoList(items);
-        log.info("method: getAll |Response|" + "items:{}", itemDtoList);
+        log.info("method: getAll |Response|" + " items:{}", itemDtoList);
         return itemDtoList;
     }
 
@@ -124,11 +119,12 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
+
         List<ItemDto> items = repository.searchItems(text)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
-        log.info("method: search |Request/Response|" + "text:{} / items:{}", text, items);
+        log.info("method: search |Request/Response|" + " text:{} / items:{}", text, items);
         return items;
     }
 
@@ -153,6 +149,43 @@ public class ItemServiceImpl implements ItemService {
         return createdCommentDto;
     }
 
+    private Item getItem(Long itemId) {
+        return repository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("fail: itemId Not Found!"));
+    }
+
+    private Booking getLastBooking(LocalDateTime now, List<Booking> bookings) {
+        return bookings.stream()
+                .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
+                .filter(booking -> booking.getStart().isBefore(now))
+                .max(Comparator.comparing(Booking::getStart))
+                .orElse(null);
+    }
+
+    private Booking getNextBooking(LocalDateTime now, List<Booking> bookings) {
+        return bookings.stream()
+                .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
+                .filter(booking -> booking.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart))
+                .orElse(null);
+    }
+
+    private ItemDto updateBooking(ItemDto itemDto) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
+
+        Booking lastBooking = getLastBooking(now, bookings);
+        Booking nextBooking = getNextBooking(now, bookings);
+
+        if (lastBooking != null) {
+            itemDto.setLastBooking(bookingMapper.toItemBookingDto(lastBooking));
+        }
+        if (nextBooking != null) {
+            itemDto.setNextBooking(bookingMapper.toItemBookingDto(nextBooking));
+        }
+        return itemDto;
+    }
+
     private ItemDto addItemComments(ItemDto itemDto) {
         List<CommentDto> comments = getCommentDtoList(commentService.getAllCreatedComments(itemDto.getId()));
         itemDto.setComments(comments);
@@ -174,43 +207,6 @@ public class ItemServiceImpl implements ItemService {
         return comments.stream()
                 .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList());
-    }
-
-    private ItemDto updateBooking(ItemDto itemDto) {
-        LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
-
-        Booking lastBooking = getLastBooking(now, bookings);
-        Booking nextBooking = getNextBooking(now, bookings);
-
-        if (lastBooking != null) {
-            itemDto.setLastBooking(bookingMapper.toItemBookingDto(lastBooking));
-        }
-        if (nextBooking != null) {
-            itemDto.setNextBooking(bookingMapper.toItemBookingDto(nextBooking));
-        }
-        return itemDto;
-    }
-
-    private Booking getLastBooking(LocalDateTime now, List<Booking> bookings) {
-        return bookings.stream()
-                .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
-                .filter(booking -> booking.getStart().isBefore(now))
-                .max(Comparator.comparing(Booking::getStart))
-                .orElse(null);
-    }
-
-    private Booking getNextBooking(LocalDateTime now, List<Booking> bookings) {
-        return bookings.stream()
-                .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
-                .filter(booking -> booking.getStart().isAfter(now))
-                .min(Comparator.comparing(Booking::getStart))
-                .orElse(null);
-    }
-
-    private Item getItem(Long itemId) {
-        return repository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("fail: itemId Not Found!"));
     }
 
     private void validateBookingExist(Long itemId, Long userId) {

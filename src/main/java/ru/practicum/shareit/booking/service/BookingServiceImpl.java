@@ -40,18 +40,18 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("fail: invalid booking time!");
         }
 
-        UserDto userDto = userService.getById(bookerId);
         ItemDto itemDto = itemService.getById(inputBookingDto.getItemId());
-        if (itemService.getOwnerId(itemDto.getId()).equals(bookerId)) {
+        if (itemDto.getOwner().getId().equals(bookerId)) {
             throw new NotFoundException("fail: owner can not be a booker!");
         }
 
+        UserDto userDto = userService.getById(bookerId);
         Booking booking = bookingMapper.toBooking(inputBookingDto, userDto, itemDto);
         if (!booking.getItem().getAvailable()) {
             throw new ValidationException("fail: item cannot be booked!");
         }
-
         repository.save(booking);
+
         BookingDto createdBookingDto = bookingMapper.toBookingDto(booking);
         log.info("method: createBooking |Request/Response|" + " inputBookingDto:{}, bookerId:{} /" +
                 " createdBookingDto:{}", inputBookingDto, bookerId, createdBookingDto);
@@ -75,8 +75,9 @@ public class BookingServiceImpl implements BookingService {
         BookingStatus newStatus = isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
         booking.setStatus(newStatus);
         repository.save(booking);
+
         BookingDto approvedBookingDto = bookingMapper.toBookingDto(booking);
-        log.info("method: approve |Request/Response|" + "userId:{}, bookingId:{}, isApproved:{} / " +
+        log.info("method: approve |Request/Response|" + " userId:{}, bookingId:{}, isApproved:{} / " +
                         " bookingStatus:{}, approvedBookingDto:{}",
                 userId, bookingId, isApproved, newStatus, approvedBookingDto);
         return approvedBookingDto;
@@ -92,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         BookingDto bookingDto = bookingMapper.toBookingDto(booking);
-        log.info("method: getById |Request/Response|" + "userId:{}, bookingId:{} / bookingDto:{}",
+        log.info("method: getById |Request/Response|" + " userId:{}, bookingId:{} / bookingDto:{}",
                 userId, bookingId, bookingDto);
         return bookingDto;
     }
@@ -104,23 +105,40 @@ public class BookingServiceImpl implements BookingService {
 
         switch (BookingState.valueOf(state)) {
             case ALL:
-                return getBookingDtoList(repository.findByBookerIdOrderByStartDesc(
-                        userId));
+                List<BookingDto> allList = getBookingDtoList(repository.findByBookerIdOrderByStartDesc(userId));
+                log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
+                        userId, state, allList);
+                return allList;
             case CURRENT:
-                return getBookingDtoList(repository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+                List<BookingDto> currentList = getBookingDtoList(repository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
                         userId, LocalDateTime.now(), LocalDateTime.now()));
+                log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
+                        userId, state, currentList);
+                return currentList;
             case PAST:
-                return getBookingDtoList(repository.findByBookerIdAndEndIsBeforeOrderByStartDesc(
+                List<BookingDto> pastList = getBookingDtoList(repository.findByBookerIdAndEndIsBeforeOrderByStartDesc(
                         userId, LocalDateTime.now()));
+                log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
+                        userId, state, pastList);
+                return pastList;
             case FUTURE:
-                return getBookingDtoList(repository.findByBookerIdAndStartIsAfterOrderByStartDesc(
+                List<BookingDto> futureList = getBookingDtoList(repository.findByBookerIdAndStartIsAfterOrderByStartDesc(
                         userId, LocalDateTime.now()));
+                log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
+                        userId, state, futureList);
+                return futureList;
             case WAITING:
-                return getBookingDtoList(repository.findByBookerIdAndStartIsAfterAndStatusOrderByStartDesc(
+                List<BookingDto> waitingList = getBookingDtoList(repository.findByBookerIdAndStartIsAfterAndStatusOrderByStartDesc(
                         userId, LocalDateTime.now(), BookingStatus.WAITING));
+                log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
+                        userId, state, waitingList);
+                return waitingList;
             case REJECTED:
-                return getBookingDtoList(repository.findByBookerIdAndStatusOrderByStartDesc(
+                List<BookingDto> rejectedList = getBookingDtoList(repository.findByBookerIdAndStatusOrderByStartDesc(
                         userId, BookingStatus.REJECTED));
+                log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
+                        userId, state, rejectedList);
+                return rejectedList;
             default:
                 throw new InvalidStateException("Unknown state: " + state);
         }
@@ -133,23 +151,40 @@ public class BookingServiceImpl implements BookingService {
 
         switch (BookingState.valueOf(state)) {
             case ALL:
-                return getBookingDtoList(repository.findByItemOwnerIdOrderByStartDesc(
-                        ownerId));
+                List<BookingDto> allList = getBookingDtoList(repository.findByItemOwnerIdOrderByStartDesc(ownerId));
+                log.info("method: getAllOwnerBookings |Request/Response|" + " ownerId={}, state={} / list={}",
+                        ownerId, state, allList);
+                return allList;
             case CURRENT:
-                return getBookingDtoList(repository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+                List<BookingDto> currentList = getBookingDtoList(repository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
                         ownerId, LocalDateTime.now(), LocalDateTime.now()));
+                log.info("method: getAllOwnerBookings |Request/Response|" + " ownerId={}, state={} / list={}",
+                        ownerId, state, currentList);
+                return currentList;
             case PAST:
-                return getBookingDtoList(repository.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(
+                List<BookingDto> pastList = getBookingDtoList(repository.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(
                         ownerId, LocalDateTime.now()));
+                log.info("method: getAllOwnerBookings |Request/Response|" + " ownerId={}, state={} / list={}",
+                        ownerId, state, pastList);
+                return pastList;
             case FUTURE:
-                return getBookingDtoList(repository.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(
+                List<BookingDto> futureList = getBookingDtoList(repository.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(
                         ownerId, LocalDateTime.now()));
+                log.info("method: getAllOwnerBookings |Request/Response|" + " ownerId={}, state={} / list={}",
+                        ownerId, state, futureList);
+                return futureList;
             case WAITING:
-                return getBookingDtoList(repository.findByItemOwnerIdAndStartIsAfterAndStatusOrderByStartDesc(
+                List<BookingDto> waitingList = getBookingDtoList(repository.findByItemOwnerIdAndStartIsAfterAndStatusOrderByStartDesc(
                         ownerId, LocalDateTime.now(), BookingStatus.WAITING));
+                log.info("method: getAllOwnerBookings |Request/Response|" + " ownerId={}, state={} / list={}",
+                        ownerId, state, waitingList);
+                return waitingList;
             case REJECTED:
-                return getBookingDtoList(repository.findByItemOwnerIdAndStatusOrderByStartDesc(
+                List<BookingDto> rejectedList = getBookingDtoList(repository.findByItemOwnerIdAndStatusOrderByStartDesc(
                         ownerId, BookingStatus.REJECTED));
+                log.info("method: getAllOwnerBookings |Request/Response|" + " ownerId={}, state={} / list={}",
+                        ownerId, state, rejectedList);
+                return rejectedList;
             default:
                 throw new InvalidStateException("Unknown state: " + state);
         }
