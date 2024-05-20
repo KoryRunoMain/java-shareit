@@ -1,11 +1,14 @@
-package ru.practicum.shareit.user.service;
+package ru.practicum.shareit.user.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.Optional;
+
 @Component
 public class UserMapper {
+
     public User toUser(UserDto userDto) {
         return userDto == null ? null : User.builder()
                 .id(userDto.getId())
@@ -22,10 +25,16 @@ public class UserMapper {
                 .build();
     }
 
-    public void updateUserDto(UserDto userDto,User userToUpdate,Long userId) {
-        userToUpdate.setEmail(userDto.getEmail() != null && !userDto.getEmail().isEmpty()
-                && userDto.getEmail().contains("@") ? userDto.getEmail() : userToUpdate.getEmail());
-        userToUpdate.setName(userDto.getName() != null
-                && !userDto.getName().isEmpty() ? userDto.getName() : userToUpdate.getName());
+    public void updateUserDto(UserDto userDto, User userToUpdate) {
+        String updatedEmail = Optional.ofNullable(userDto.getEmail())
+                .filter(email -> email.contains("@"))
+                .orElse(userToUpdate.getEmail());
+        userToUpdate.setEmail(updatedEmail);
+
+        String updatedName = Optional.ofNullable(userDto.getName())
+                .filter(name -> !name.isEmpty())
+                .orElse(userToUpdate.getName());
+        userToUpdate.setName(updatedName);
     }
+
 }

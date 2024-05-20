@@ -5,90 +5,72 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
+
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
-    private UserStorage userStorage;
+    private UserRepository repository;
     private UserMapper userMapper;
 
     @Override
-    public UserDto get(Long userId) {
-        UserDto getUserDto = userMapper.toUserDto(userStorage.get(userId));
-        log.info("method: get |Request/Response|" + "userId:{} / userId:{}",
-                userId, getUserDto);
-        return getUserDto;
+    public UserDto getById(Long userId) {
+        UserDto userDto = userMapper.toUserDto(repository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("fail: user/owner ID Not Found!")));
+        log.info("method: getById |Request/Response|" + " userId:{} / userId:{}", userId, userDto);
+        return userDto;
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        validateCreateUser(userDto);
-        checkUserExists(userDto.getEmail());
-        UserDto createdUserDto = userMapper.toUserDto(userStorage.create(userMapper.toUser(userDto)));
-        log.info("method: create |Request/Response|" + "userDto:{} / createdUserDto:{}",
-                userDto, createdUserDto);
+        User user = repository.save(userMapper.toUser(userDto));
+        UserDto createdUserDto = userMapper.toUserDto(user);
+        log.info("method: create |Request/Response|" + " userDto:{} / createdUser:{}", userDto, createdUserDto);
         return createdUserDto;
     }
 
     @Override
-    public UserDto update(UserDto userDto, Long userId) {
-        User userToUpdate = userStorage.get(userId);
-        if (userToUpdate == null) {
-            throw new NotFoundException("fail: update.getUser() User Not Found!");
+    public UserDto save(UserDto userDto, Long userId) {
+        User user = userMapper.toUser(getById(userId));
+        if (getById(userId) == null) {
+            throw new NotFoundException("fail: user Not Found!");
         }
-        userStorage.getUsers().stream()
-                .filter(u -> !u.getId().equals(userId) && u.getEmail().equals(userDto.getEmail()))
-                .findFirst()
-                .ifPresent(user -> {
-                    throw new AlreadyExistsException("fail: update.getEmail() Email Is Already Taken!");
-                });
-        userMapper.updateUserDto(userDto, userToUpdate, userId);
-        UserDto updatedUserDto = userMapper.toUserDto(userStorage.update(userToUpdate));
-        log.info("method: update |Request/Response|" + "userDto:{}, userId:{} / updatedUserDto:{}",
+        Optional<User> existingUser = repository.findByIdNotAndEmail(userId, user.getEmail());
+        if (existingUser.isPresent()) {
+            throw new AlreadyExistsException("fail: email Is Already Taken!");
+        }
+        userMapper.updateUserDto(userDto, user);
+        repository.save(user);
+
+        UserDto updatedUserDto = userMapper.toUserDto(user);
+        log.info("method: save |Request/Response|" + " userDto:{}, userId:{} / updatedUserDto:{}",
                 userDto, userId, updatedUserDto);
         return updatedUserDto;
     }
 
     @Override
-    public UserDto delete(Long userId) {
-        if (!userStorage.isContains(userId)) {
-            throw new NotFoundException("fail: delete.isContains() User Not Found!");
-        }
-        UserDto deleteUserDto = userMapper.toUserDto(userStorage.delete(userId));
-        log.info("method: delete |Request/Response|" + "userId:{} / deleteUserDto:{}",
-                userId, deleteUserDto);
-        return deleteUserDto;
+    public void delete(Long userId) {
+        repository.deleteById(userId);
+        log.info("method: delete |Request|" + " userId:{}", userId);
     }
 
     @Override
-    public List<UserDto> getUsers() {
-        List<UserDto> getUsersDto = userStorage.getUsers().stream()
+    public List<UserDto> getAll() {
+        List<UserDto> usersDto = repository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
-        log.info("method: getUsers |Response|" + "ListUsers:{}",
-                getUsersDto);
-        return getUsersDto;
+        log.info("method: getAll |Response|" + " list of users:{}", usersDto);
+        return usersDto;
     }
 
-    private void validateCreateUser(UserDto userDto) {
-        if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new ValidationException("fail: validateCreateUser.getEmail() is Null or isBlank!");
-        }
-        if (userDto.getName() == null || userDto.getName().isBlank()) {
-            throw new ValidationException("fail: validateCreateUser.getName() is Null or isBlank!");
-        }
-    }
-
-    private void checkUserExists(String email) {
-        if (userStorage.getUserByEmail(email).isPresent()) {
-            throw new AlreadyExistsException("fail: checkUserExists.getUserByEmail() Email Is Already Taken!");
-        }
-    }
 }

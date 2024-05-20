@@ -3,18 +3,51 @@ package ru.practicum.shareit.item.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import javax.validation.constraints.NotBlank;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Data
+@Entity
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "items")
 @Builder(toBuilder = true)
 public class Item {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+
+    @Column(name = "name", nullable = false)
     private String name;
-    @NotBlank
+
+    @Column(name = "description", nullable = false)
     private String description;
+
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
-    private Long request;
-    private Long owner;
+
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private ItemRequest itemRequest;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @Transient
+    private Booking lastBooking;
+
+    @Transient
+    private Booking nextBooking;
+
+    @Transient
+    private List<CommentDto> comments;
+
 }
