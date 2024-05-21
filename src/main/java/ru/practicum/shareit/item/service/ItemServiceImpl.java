@@ -2,6 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
@@ -17,16 +20,18 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,24 +42,40 @@ public class ItemServiceImpl implements ItemService {
     private ItemRepository repository;
     private BookingRepository bookingRepository;
     private UserService userService;
+    private ItemRequestRepository itemRequestRepository;
     private CommentService commentService;
     private UserMapper userMapper;
     private ItemMapper itemMapper;
     private CommentMapper commentMapper;
     private BookingMapper bookingMapper;
+    private ItemRequestMapper itemRequestMapper;
 
     @Override
     public ItemDto create(ItemDto itemDto, Long userId) {
         User user = userMapper.toUser(userService.getById(userId));
+
+//        ItemRequest itemRequest = Optional.ofNullable(itemDto.getRequestId())
+//                .stream()
+//                .flatMap(requestId -> itemRequestRepository.findById(requestId).stream())
+//                .findFirst()
+//                .orElse(null);
+        ItemRequest itemRequest = itemDto.getRequestId() != null ? getItemRequest(itemDto) : null;
+
         Item createdItem = itemMapper.toItem(itemDto);
         createdItem.setOwner(user);
         createdItem.setComments(Collections.emptyList());
+        createdItem.setItemRequest(itemRequest);
         repository.save(createdItem);
 
         ItemDto createdItemDto = itemMapper.toItemDto(createdItem);
         log.info("method: create |Request/Response|" + " itemDto:{}, userId:{} / createdItemDto:{}",
                 itemDto, userId, createdItemDto);
         return createdItemDto;
+    }
+
+    private ItemRequest getItemRequest(ItemDto itemDto) {
+        return itemRequestRepository.findById(itemDto.getRequestId())
+                .orElseThrow(() -> new NotFoundException("fail: itemRequestId Not Found!"));
     }
 
     @Override
@@ -101,8 +122,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAll(Long owner) {
-        List<ItemDto> items = repository.findAllByOwnerId(owner)
+    public List<ItemDto> getAll(Long owner, int from, int size) {
+        int pageNumber = from / size;
+        Pageable pageRequest = PageRequest.of(pageNumber, size);
+
+        List<ItemDto> items = repository.findAllByOwnerId(owner, pageRequest)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .map(this::updateBooking)
@@ -115,18 +139,53 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
+    public List<ItemDto> search(String text, int from, int size) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
+        int pageNumber = from / size;
+        Pageable pageRequest = PageRequest.of(pageNumber, size);
 
-        List<ItemDto> items = repository.searchItems(text)
+        List<ItemDto> items = repository.searchItems(text, pageRequest)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         log.info("method: search |Request/Response|" + " text:{} / items:{}", text, items);
         return items;
     }
+
+//    @Override
+//    public List<ItemDto> getAll(Long owner, int from, int size) {
+//        int page = from / size;
+//        PageRequest pageRequest = PageRequest.of(page, size);
+//
+//        List<ItemDto> items = repository.findAllByOwnerId(owner, pageRequest)
+//                .stream()
+//                .map(itemMapper::toItemDto)
+//                .map(this::updateBooking)
+//                .map(this::addItemComments)
+//                .collect(Collectors.toList());
+//
+//        List<ItemDto> itemDtoList = getItemDtoList(items);
+//        log.info("method: getAll |Response|" + " items:{}", itemDtoList);
+//        return itemDtoList;
+//    }
+//
+//    @Override
+//    public List<ItemDto> search(String text, int from, int size) {
+//        if (text == null || text.isBlank()) {
+//            return Collections.emptyList();
+//        }
+//        int page = from / size;
+//        PageRequest pageRequest = PageRequest.of(page, size);
+//
+//        List<ItemDto> items = repository.searchItems(text, pageRequest)
+//                .stream()
+//                .map(itemMapper::toItemDto)
+//                .collect(Collectors.toList());
+//        log.info("method: search |Request/Response|" + " text:{} / items:{}", text, items);
+//        return items;
+//    }
 
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {

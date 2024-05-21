@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -25,15 +28,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(OWNER_ID) Long userId) {
-        log.info("Get-request getAllItems: userId {}", userId);
-        return service.getAll(userId);
+    public List<ItemDto> getAllItems(@RequestHeader(OWNER_ID) Long userId,
+                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                     @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Get-request getAllItems: userId={}, from={}, size={}", userId, from, size);
+        return service.getAll(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text) {
-        log.info("Get-request getItemSearch: text {}", text);
-        return service.search(text);
+    public List<ItemDto> searchItem(@RequestParam String text,
+                                    @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                    @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Get-request getItemSearch: text={}, from={}, size={}", text, from, size);
+        return service.search(text, from, size);
     }
 
     @PostMapping

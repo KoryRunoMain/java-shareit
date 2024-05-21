@@ -8,12 +8,15 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.InputBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/bookings")
+@Validated
 public class BookingController {
     private static final String OWNER_ID = "X-Sharer-User-Id";
     private final BookingService service;
@@ -28,16 +31,22 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllUserBookings(@RequestParam(defaultValue = "ALL") String state,
-                                               @RequestHeader(OWNER_ID) Long userId) {
-        log.info("Get-request getAllUserBookings: userId{}, state{}", userId, state);
-        return service.getAllUserBookings(userId, state);
+                                               @RequestHeader(OWNER_ID) Long userId,
+                                               @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                               @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Get-request getAllUserBookings: userId{}, state{}, from={}, size={}",
+                userId, state, from, size);
+        return service.getAllUserBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
-                                                @RequestHeader(OWNER_ID) Long owner) {
-        log.info("Get-request getAllOwnerBookings: ownerId{}, state{}", owner, state);
-        return service.getAllOwnerBookings(owner, state);
+                                                @RequestHeader(OWNER_ID) Long userId,
+                                                @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Get-request getAllOwnerBookings: userId={}, state{}, from={}, size={}",
+                userId, state, from, size);
+        return service.getAllOwnerBookings(userId, state, from, size);
     }
 
     @PostMapping
