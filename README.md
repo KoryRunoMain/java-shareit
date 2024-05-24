@@ -8,7 +8,7 @@ Restful API back-end сервис для шеринга вещей.
 
 - Разработан с использованием фреймворка Spring Boot;
 - База данных h2database. Общение с БД на Query Methods и JPQL;
-- 16 End-points доступных для управления данными.
+- 20 End-points доступных для управления данными.
 
 ## Содержание:
 
@@ -20,7 +20,7 @@ Restful API back-end сервис для шеринга вещей.
 
 ## Стэк проекта
 
-- Java 11, Spring Boot, Maven, Lombok, JPQL, Query Methods, Postman
+- Java 11, Spring Boot, Maven, Lombok, JPQL, QueryDSL, Mockito, Postman
 - База данных: [schema.sql](src/main/resources/schema.sql)
 - Зависимости: [pom.xml](pom.xml)
 - Тесты: [tests](.postman)
@@ -30,7 +30,6 @@ Restful API back-end сервис для шеринга вещей.
 ### EndPoints:
 
 #### Пользователи (users):
-
 + GET /users - Получить всех пользователей;
 + GET /users/{id} - Получить пользователя по ID;
 + POST /users - Добавить пользователя;
@@ -38,7 +37,6 @@ Restful API back-end сервис для шеринга вещей.
 + DELETE /users/{userId} - Удалить пользователя по ID.
 
 #### Вещи (items):
-
 + GET /items - Получить все вещи;
 + GET /items/{itemId} - Получить вещь по ID;
 + GET /items/search - Найти вещь;
@@ -58,10 +56,16 @@ Restful API back-end сервис для шеринга вещей.
 + PATCH /bookings/{bookingId}?approved={approved} - Подтвердить или отклонить запрос на бронирование вещи.
   - Может принимать значения approved: true, false
 
+#### Запросы на вещи (item_requests):
++ GET /requests/from={}&size={} - Получить список личных запросов на вещи;
++ GET /requests/{requestId} - Получить запросе на вещь;
++ GET /requests/all?from={from}&size={size} - Получить список запросов, созданных другими пользователями 
+(from - страница, size - количество записей);
++ POST /requests - Добавить новый запрос на вещь;
+
 ### ER-diagram
 
 ![](src/main/resources/ER-diagram.png)
-
 
 ## Ход проекта
 
@@ -70,9 +74,9 @@ Restful API back-end сервис для шеринга вещей.
 | Спринт    | Этап | Описание этапов                    | Отметка |
 |-----------|----|------------------------------------|---------|
 | Spring 13 | 1  | user, items entity and controllers | +       |
-| Spring 14 | 2  | bookings and comments              |         |
+| Spring 14 | 2  | bookings and comments              | +       |
 | Spring 15 | 3  | requests and mok-tests             |         |
-| Spring 16 | 4  | ???                                |         |
+| Spring 16 | 4  | docker                             |         |
 
 
 ## Пошаговая инструкция по установке и запуску проета
