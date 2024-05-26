@@ -1,7 +1,6 @@
 package ru.practicum.shareit.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +31,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ItemController.class)
 public class ItemControllerTest {
 
-    @MockBean
-    private ItemService service;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private MockMvc mvc;
-
     private static final Long USER_ID = 1L;
     private static final Long ITEM_ID = 1L;
     private static final Long COMMENT_ID = 1L;
 
+    @MockBean
+    private ItemService service;
+    @Autowired
+    private ObjectMapper mapper;
+    @Autowired
+    private MockMvc mvc;
+
     private final User user = new User(USER_ID, "user", "user@user.user");
     private final ItemDto itemDto = new ItemDto(ITEM_ID, null, "item", "description", true, null, null, user, null);
     private final CommentDto commentDto = new CommentDto(COMMENT_ID, "text", itemDto, "author", LocalDateTime.now());
-    
+
     @Test
     void test_1_createItem_And_ReturnStatusOk() throws Exception {
         when(service.create(any(), anyLong())).thenReturn(itemDto);
