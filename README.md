@@ -76,7 +76,7 @@ Restful API back-end сервис для шеринга вещей.
 | Spring 13 | 1  | user, items entity and controllers | +       |
 | Spring 14 | 2  | bookings and comments              | +       |
 | Spring 15 | 3  | requests and mok-tests             |         |
-| Spring 16 | 4  | docker                             |         |
+| Spring 16 | 4  |                                    |         |
 
 
 ## Пошаговая инструкция по установке и запуску проета
