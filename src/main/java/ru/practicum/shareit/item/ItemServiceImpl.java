@@ -11,10 +11,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.comment.CommentDto;
-import ru.practicum.shareit.item.comment.Comment;
-import ru.practicum.shareit.item.comment.CommentMapper;
-import ru.practicum.shareit.item.comment.CommentService;
+import ru.practicum.shareit.item.comment.*;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
@@ -33,6 +30,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private ItemRepository repository;
     private BookingRepository bookingRepository;
+    private CommentRepository commentRepository;
     private UserService userService;
     private ItemRequestRepository itemRequestRepository;
     private CommentService commentService;
@@ -152,7 +150,7 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
-        commentService.saveComment(comment);
+        commentRepository.save(comment);
 
         CommentDto createdCommentDto = commentMapper.toCommentDto(comment);
         log.info("method: createComment |Request/Response|" + " itemId:{}, userId:{}, commentDto:{} / createdCommentDto:{}",

@@ -45,7 +45,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     findBy BookerId And EndIsBefore OrderBy Start Desc
      */
     Page<Booking> findByBookerIdAndEndIsBeforeOrderByStartDesc(Long bookerId,
-                                                               LocalDateTime time,
+                                                               LocalDateTime startTime,
                                                                Pageable pageRequest);
 
     /*
@@ -53,7 +53,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     findBy BookerId And StartIsAfter OrderBy Start Desc
      */
     Page<Booking> findByBookerIdAndStartIsAfterOrderByStartDesc(Long userId,
-                                                                LocalDateTime time,
+                                                                LocalDateTime endTime,
                                                                 Pageable pageRequest);
 
     /*

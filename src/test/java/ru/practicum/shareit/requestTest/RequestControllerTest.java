@@ -1,4 +1,4 @@
-package ru.practicum.shareit.controllers;
+package ru.practicum.shareit.requestTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class ItemRequestControllerTest {
+public class RequestControllerTest {
 
     @Mock
     ItemRequestService service;

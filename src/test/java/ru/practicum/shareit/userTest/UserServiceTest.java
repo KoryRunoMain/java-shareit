@@ -1,4 +1,4 @@
-package ru.practicum.shareit.service;
+package ru.practicum.shareit.userTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,9 @@ public class UserServiceTest {
 
     //User
     private final User user = new User(USER_ID, "user", "user@user.user");
+    private final User wrongUser = new User(5L, null, null);
     private final UserDto userDto = new UserDto(USER_ID, "user", "user@user.user");
+    private final UserDto wrongUserDto = new UserDto(5L, null, null);
     private final UserDto updatedUserDto = new UserDto(USER_ID, "updatedUser", "user@user.user");
 
     @BeforeEach
@@ -78,7 +80,13 @@ public class UserServiceTest {
     }
 
     @Test
-    void test_5_update_And_ReturnUser() {
+    void test_5_createWithWrongData_And_ReturnException() {
+        when(repository.save(any())).thenReturn(wrongUser);
+        assertThrows(NotFoundException.class, () -> service.getById(5L));
+    }
+
+    @Test
+    void test_6_update_And_ReturnUser() {
         when(repository.findById(1L)).thenReturn(Optional.of(user));
         when(mapper.toUser(updatedUserDto)).thenReturn(user);
         when(repository.save(any(User.class))).thenReturn(user);
@@ -90,7 +98,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void test_6_delete_And_ReturnStatusOk() {
+    void test_7_delete_And_ReturnStatusOk() {
         Long userId = 1L;
         service.delete(userId);
         verify(repository, times(1)).deleteById(userId);

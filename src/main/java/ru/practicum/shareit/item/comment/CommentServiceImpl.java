@@ -32,9 +32,4 @@ public class CommentServiceImpl implements CommentService {
         return comments;
     }
 
-    @Override
-    public void saveComment(Comment comment) {
-        commentRepository.save(comment);
-    }
-
 }

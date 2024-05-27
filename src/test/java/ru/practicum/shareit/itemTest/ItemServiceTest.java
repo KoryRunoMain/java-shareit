@@ -1,10 +1,9 @@
-package ru.practicum.shareit.service;
+package ru.practicum.shareit.itemTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -12,8 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.comment.*;
 import ru.practicum.shareit.request.*;
@@ -26,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -37,22 +39,34 @@ public class ItemServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+
     @Mock
     private BookingRepository bookingRepository;
+
     @Mock
     private UserService userService;
+
     @Mock
     private ItemRequestRepository itemRequestRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
+
     @Mock
     private CommentService commentService;
+
     @Mock
     private UserMapper userMapper;
+
     @Mock
     private ItemMapper itemMapper;
+
     @Mock
     private CommentMapper commentMapper;
+
     @Mock
     private BookingMapper bookingMapper;
+
     @Mock
     private ItemRequestMapper itemRequestMapper;
 
@@ -62,18 +76,22 @@ public class ItemServiceTest {
     private static final Long USER_ID = 1L;
     private static final Long ITEM_ID = 1L;
     private static final Long REQUEST_ID = 1L;
-
+    private static final Long BOOKING_ID = 1L;
+    private static final Long COMMENT_ID = 1L;
     //Users
     private final User user = new User(USER_ID, "user", "user@user.user");
     private final UserDto userDto = new UserDto(USER_ID, "user", "user@user.user");
     //Items
     private final Item item = new Item(ITEM_ID, "item", "descriptionItem", true, null, user, null, null, null);
-    private final ItemDto itemDto = new ItemDto(ITEM_ID, REQUEST_ID, "item", "descriptionItem", item.getAvailable(), null, null, user, null);
+    private final ItemDto itemDto = new ItemDto(ITEM_ID, REQUEST_ID, "item", "descriptionItem", true, null, null, user, null);
     private final Item updatedItem = new Item(ITEM_ID, "name", "description", true, null, user, null, null, null);
     private final ItemDto updatedItemDto = new ItemDto(ITEM_ID, REQUEST_ID, "name", "description", null, null, null, user, null);
     //Requests
     private final ItemRequest itemRequest = new ItemRequest(REQUEST_ID, "description", user, LocalDateTime.now(), List.of(item));
     private final ItemRequestDto itemRequestDto = new ItemRequestDto(REQUEST_ID, "description", userDto, LocalDateTime.now(), List.of(itemDto));
+    //Bookings
+    private final Booking booking = new Booking(BOOKING_ID, LocalDateTime.now(), LocalDateTime.now().plusDays(1), item, user, BookingStatus.APPROVED);
+    private final List<Booking> bookingList = List.of(booking);
 
     @BeforeEach
     void setUp() {
@@ -135,6 +153,15 @@ public class ItemServiceTest {
         List<ItemDto> responseList = itemService.search(searchText, 0, 10);
         List<ItemDto> expectedList = List.of(itemDto);
         assertEquals(expectedList, responseList);
+    }
+
+    @Test
+    void test_6_createEmptyComment_And_ReturnException() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("");
+        assertThrows(ValidationException.class, () -> {
+            itemService.createComment(ITEM_ID, USER_ID, commentDto);
+        });
     }
 
 }
