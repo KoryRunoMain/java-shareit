@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.request.ItemRequest;
+
 import java.util.List;
 
 @Service
@@ -20,5 +22,7 @@ public interface ItemService {
     CommentDto createComment(Long itemId, Long userId, CommentDto commentDto);
 
     ItemDto update(ItemDto itemDto, Long itemId, Long userId);
+
+    ItemRequest getItemRequest(ItemDto itemDto);
 
 }

@@ -45,12 +45,12 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("fail: owner can not be a booker!");
         }
 
-        UserDto userDto = userService.getById(bookerId);
-        Booking booking = bookingMapper.toBooking(inputBookingDto, userDto, itemDto);
-        if (!booking.getItem().getAvailable()) {
+        if (!itemDto.getAvailable()) {
             throw new ValidationException("fail: item cannot be booked!");
         }
 
+        UserDto userDto = userService.getById(bookerId);
+        Booking booking = bookingMapper.toBooking(inputBookingDto, userDto, itemDto);
         Booking savedBooking = repository.save(booking);
         BookingDto createdBookingDto = bookingMapper.toBookingDto(savedBooking);
         log.info("method: createBooking |Request/Response|" + " inputBookingDto:{}, bookerId:{} /" +

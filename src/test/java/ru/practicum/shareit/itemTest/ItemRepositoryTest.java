@@ -38,6 +38,7 @@ public class ItemRepositoryTest {
     private static final Long ITEM_ID = 1L;
     private static final String SEARCH_TEXT = "Arduino";
     private static final String NOT_FOUND_TEXT = "NotExist";
+
     private final User user = new User(OWNER_ID, "user", "user@user.user");
     private final Item item = new Item(ITEM_ID, "Arduino", "Arduino", true, null, user, null, null, null);
     private ItemRequest itemRequest;

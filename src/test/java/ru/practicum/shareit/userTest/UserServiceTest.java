@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserMapper;
@@ -31,10 +32,10 @@ public class UserServiceTest {
     @Mock
     private UserMapper mapper;
     @Mock
-    private UserRepository repository;
+    private UserRepository userRepository;
 
     @InjectMocks
-    private UserServiceImpl service;
+    private UserServiceImpl userService;
 
     private static final Long USER_ID = 1L;
 
@@ -53,20 +54,20 @@ public class UserServiceTest {
 
     @Test
     void test_1_getById_And_ReturnUser() {
-        when(repository.findById(anyLong())).thenReturn(Optional.of(user));
-        assertEquals(userDto, service.getById(1L));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        assertEquals(userDto, userService.getById(1L));
     }
 
     @Test
     void test_2_getByWrongId_And_ReturnErrorMessage() {
-        when(repository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> service.getById(100L));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> userService.getById(100L));
     }
 
     @Test
     void test_3_getAll_And_ReturnUserList() {
-        when(repository.findAll()).thenReturn(Collections.singletonList(user));
-        List<UserDto> list = service.getAll();
+        when(userRepository.findAll()).thenReturn(Collections.singletonList(user));
+        List<UserDto> list = userService.getAll();
         assertNotNull(list);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -75,22 +76,22 @@ public class UserServiceTest {
 
     @Test
     void test_4_create_And_ReturnUser() {
-        when(repository.save(any())).thenReturn(user);
-        assertEquals(service.create(userDto), userDto);
+        when(userRepository.save(any())).thenReturn(user);
+        assertEquals(userService.create(userDto), userDto);
     }
 
     @Test
     void test_5_createWithWrongData_And_ReturnException() {
-        when(repository.save(any())).thenReturn(wrongUser);
-        assertThrows(NotFoundException.class, () -> service.getById(5L));
+        when(userRepository.save(any())).thenReturn(wrongUser);
+        assertThrows(NotFoundException.class, () -> userService.getById(5L));
     }
 
     @Test
     void test_6_update_And_ReturnUser() {
-        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(mapper.toUser(updatedUserDto)).thenReturn(user);
-        when(repository.save(any(User.class))).thenReturn(user);
-        UserDto updatedUser = service.update(updatedUserDto, 1L);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        UserDto updatedUser = userService.update(updatedUserDto, 1L);
         assertNotNull(updatedUser);
         assertEquals(userDto.getName(), updatedUser.getName());
         assertEquals(userDto.getEmail(), updatedUser.getEmail());
@@ -98,10 +99,29 @@ public class UserServiceTest {
     }
 
     @Test
-    void test_7_delete_And_ReturnStatusOk() {
+    void test_7_updateNotFoundUser_And_ReturnException() {
+        when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("fail: user Not Found!"));
+
+        Exception exception = assertThrows(NotFoundException.class,
+                () -> userService.update(userDto, 10L));
+        assertEquals(exception.getMessage(), "fail: user Not Found!");
+    }
+
+    @Test
+    void test_8_updateExistingEmail_And_ReturnException() {
+        UserDto failUserDto = new UserDto(10L, "dailUser", "user@user.user");
+        when(userRepository.findById(anyLong())).thenThrow(new AlreadyExistsException("fail: email Is Already Taken!"));
+
+        Exception exception = assertThrows(AlreadyExistsException.class,
+                () -> userService.update(failUserDto, 1L));
+        assertEquals(exception.getMessage(), "fail: email Is Already Taken!");
+    }
+
+    @Test
+    void test_9_delete_And_ReturnStatusOk() {
         Long userId = 1L;
-        service.delete(userId);
-        verify(repository, times(1)).deleteById(userId);
+        userService.delete(userId);
+        verify(userRepository, times(1)).deleteById(userId);
     }
 
 }

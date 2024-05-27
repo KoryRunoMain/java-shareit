@@ -75,7 +75,7 @@ public class ItemControllerTest {
         assertThat(capturedItemDto.getLastBooking(), equalTo(itemDto.getLastBooking()));
         assertThat(capturedItemDto.getNextBooking(), equalTo(itemDto.getNextBooking()));
         Long capturedUserId = userIdCaptor.getValue();
-        assertThat(capturedUserId, equalTo(1L));
+        assertThat(capturedUserId, equalTo(USER_ID));
     }
 
     @Test
@@ -121,15 +121,15 @@ public class ItemControllerTest {
         assertThat(capturedItemDto.getComments(), equalTo(updatedItemDto.getComments()));
         assertThat(capturedItemDto.getLastBooking(), equalTo(updatedItemDto.getLastBooking()));
         assertThat(capturedItemDto.getNextBooking(), equalTo(updatedItemDto.getNextBooking()));
-        assertThat(capturedItemId, equalTo(1L));
-        assertThat(capturedUserId, equalTo(1L));
+        assertThat(capturedItemId, equalTo(ITEM_ID));
+        assertThat(capturedUserId, equalTo(USER_ID));
     }
 
     @Test
     void test_2_getItem_And_ReturnStatusOk() throws Exception {
         when(service.getItemById(anyLong(), anyLong())).thenReturn(itemDto);
         mvc.perform(get("/items/1")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -137,14 +137,14 @@ public class ItemControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        verify(service).getItemById(eq(1L), eq(itemDto.getId()));
+        verify(service).getItemById(eq(ITEM_ID), eq(itemDto.getId()));
     }
 
     @Test
     void test_3_getAllItems_And_ReturnedStatusOk() throws Exception {
         when(service.getAll(anyLong(), anyInt(), anyInt())).thenReturn(List.of(itemDto));
         mvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -179,7 +179,7 @@ public class ItemControllerTest {
     void test_6_createComment_And_ReturnedStatusOk() throws Exception {
         when(service.createComment(anyLong(), anyLong(), any())).thenReturn(commentDto);
         mvc.perform(post("/items/1/comment")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .content(mapper.writeValueAsString(commentDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

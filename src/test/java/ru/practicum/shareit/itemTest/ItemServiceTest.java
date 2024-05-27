@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.item.comment.*;
@@ -25,9 +26,12 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -39,51 +43,49 @@ public class ItemServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
-
     @Mock
     private BookingRepository bookingRepository;
-
     @Mock
     private UserService userService;
-
     @Mock
     private ItemRequestRepository itemRequestRepository;
-
     @Mock
     private CommentRepository commentRepository;
-
     @Mock
     private CommentService commentService;
-
     @Mock
     private UserMapper userMapper;
-
     @Mock
     private ItemMapper itemMapper;
-
-    @Mock
-    private CommentMapper commentMapper;
-
     @Mock
     private BookingMapper bookingMapper;
-
     @Mock
     private ItemRequestMapper itemRequestMapper;
 
     @InjectMocks
     private ItemServiceImpl itemService;
 
+    @Mock
+    private CommentMapper commentMapper;
+
     private static final Long USER_ID = 1L;
     private static final Long ITEM_ID = 1L;
+    private static final Long ITEM_ID_2 = 2L;
     private static final Long REQUEST_ID = 1L;
+    private static final Long REQUEST_ID_2 = 2L;
     private static final Long BOOKING_ID = 1L;
     private static final Long COMMENT_ID = 1L;
+    private static final Long WRONG_USER_ID = 10L;
+    private static final Long WRONG_ITEM_ID = 10L;
+
     //Users
     private final User user = new User(USER_ID, "user", "user@user.user");
     private final UserDto userDto = new UserDto(USER_ID, "user", "user@user.user");
     //Items
     private final Item item = new Item(ITEM_ID, "item", "descriptionItem", true, null, user, null, null, null);
-    private final ItemDto itemDto = new ItemDto(ITEM_ID, REQUEST_ID, "item", "descriptionItem", true, null, null, user, null);
+    private final Item item2 = new Item(ITEM_ID_2, "item", "descriptionItem", true, null, user, null, null, null);
+    private final ItemDto itemDto = new ItemDto(ITEM_ID, REQUEST_ID_2, "item", "descriptionItem", true, null, null, user, null);
+    private final ItemDto itemDto2 = new ItemDto(ITEM_ID_2, REQUEST_ID, "item", "descriptionItem", true, null, null, user, null);
     private final Item updatedItem = new Item(ITEM_ID, "name", "description", true, null, user, null, null, null);
     private final ItemDto updatedItemDto = new ItemDto(ITEM_ID, REQUEST_ID, "name", "description", null, null, null, user, null);
     //Requests
@@ -92,6 +94,9 @@ public class ItemServiceTest {
     //Bookings
     private final Booking booking = new Booking(BOOKING_ID, LocalDateTime.now(), LocalDateTime.now().plusDays(1), item, user, BookingStatus.APPROVED);
     private final List<Booking> bookingList = List.of(booking);
+    //Comments
+    private final Comment comment = new Comment(COMMENT_ID, "comment", item, user, LocalDateTime.now().minusMinutes(60));
+    private final CommentDto commentDto = CommentDto.builder().id(COMMENT_ID).text("comment").item(itemDto).authorName("user").build();
 
     @BeforeEach
     void setUp() {
@@ -104,59 +109,113 @@ public class ItemServiceTest {
         lenient().when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         lenient().when(itemMapper.toItem(any(ItemDto.class))).thenReturn(item);
         lenient().when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
+        lenient().when(commentMapper.toComment(any())).thenReturn(comment);
+        lenient().when(commentMapper.toCommentDto(any())).thenReturn(commentDto);
+        lenient().when(commentRepository.save(any())).thenReturn(comment);
     }
 
     @Test
     void test_1_create_And_ReturnItem() {
-        when(userService.getById(anyLong())).thenReturn(userDto);
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
         assertEquals(itemDto, itemService.create(itemDto, user.getId()));
         verify(itemRepository).save(item);
     }
 
     @Test
-    void test_2_update_And_ReturnItem() {
-        when(userService.getById(user.getId())).thenReturn(userDto);
+    void test_2_createWithUserNotExist_And_ReturnException() {
+        when(userService.getById(anyLong())).thenThrow(new NotFoundException("fail: user/owner ID Not Found!"));
+        Exception exception = assertThrows(NotFoundException.class, () -> itemService.create(itemDto, WRONG_USER_ID));
+        assertEquals(exception.getMessage(), "fail: user/owner ID Not Found!");
+    }
+
+    @Test
+    void test_3_createWithNotFoundItemRequest_And_ReturnException() {
+        when(itemService.getItemRequest(itemDto2)).thenThrow(new NotFoundException("fail: itemRequestId Not Found!"));
+        Exception exception = assertThrows(NotFoundException.class, () -> itemService.getItemRequest(itemDto2));
+        assertEquals(exception.getMessage(), "fail: itemRequestId Not Found!");
+    }
+
+    @Test
+    void test_4_update_And_ReturnItem() {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(updatedItem));
-        when(itemRepository.save(any(Item.class))).thenReturn(updatedItem);
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(updatedItemDto);
         assertEquals(updatedItemDto, itemService.update(updatedItemDto, user.getId(), item.getId()));
         verify(itemRepository).save(any(Item.class));
     }
 
     @Test
-    void test_3_getById_And_ReturnItem() {
-        when(userService.getById(user.getId())).thenReturn(userDto);
+    void test_5_updateWithNotFoundItem_And_ReturnException() {
+        when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("itemId not Found!"));
+        Exception exception = assertThrows(NotFoundException.class, () -> itemService.update(itemDto, WRONG_ITEM_ID, USER_ID));
+        assertEquals(exception.getMessage(), "itemId not Found!");
+    }
+
+    @Test
+    void test_6_updateUserNotEqualOwner_And_ReturnException() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        Exception exception = assertThrows(ValidationException.class, () -> itemService.update(itemDto, ITEM_ID, WRONG_USER_ID));
+        assertEquals(exception.getMessage(), "fail: ownerId and userId is not equals!");
+    }
+
+    @Test
+    void test_7_getById_And_ReturnItem() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         assertEquals(itemDto, itemService.getById(item.getId()));
     }
 
     @Test
-    void test_4_getAll_And_ReturnItem() {
+    void test_8_getByIdWithNotFoundItem_And_ReturnException() {
+        when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("itemId not Found!"));
+        Exception exception = assertThrows(NotFoundException.class, () -> itemService.getItemById(WRONG_ITEM_ID, USER_ID));
+        assertEquals(exception.getMessage(), "itemId not Found!");
+    }
+
+    @Test
+    void test_9_getAll_And_ReturnItem() {
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
         Pageable pageable = PageRequest.of(0, 10);
         when(itemRepository.findAllByOwnerId(eq(user.getId()), eq(pageable))).thenReturn(itemsPage);
-        when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         List<ItemDto> responseList = itemService.getAll(user.getId(), 0, 10);
         List<ItemDto> expectedList = List.of(itemDto);
         assertEquals(expectedList, responseList);
     }
 
     @Test
-    void test_5_search_And_ReturnItem() {
+    void test_10_search_And_ReturnItem() {
         String searchText = "descrip";
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
         Pageable pageable = PageRequest.of(0, 10);
         when(itemRepository.searchItems(eq(searchText), eq(pageable))).thenReturn(itemsPage);
-        when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         List<ItemDto> responseList = itemService.search(searchText, 0, 10);
         List<ItemDto> expectedList = List.of(itemDto);
         assertEquals(expectedList, responseList);
     }
 
     @Test
-    void test_6_createEmptyComment_And_ReturnException() {
+    void test_11_searchWithEmptyText_And_ReturnEmptyList() {
+        String searchText = "";
+        assertThat(itemService.search(searchText, 0, 10), hasSize(0));
+        assertThat(itemService.search(null, 0, 10), hasSize(0));
+        when(itemRepository.searchItems(anyString(),any())).thenReturn(Page.empty());
+        assertEquals(itemService.search("", 0, 10), Collections.EMPTY_LIST);
+    }
+
+    @Test
+    void test_12_createComment() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(userService.getById(anyLong())).thenReturn(userDto);
+        when(bookingRepository.findByItemIdAndBookerIdAndStatusAndEndIsBefore(anyLong(), anyLong(), any(), any())).thenReturn(bookingList);
+        when(commentRepository.save(any())).thenReturn(comment);
+        when(commentRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        CommentDto testComment = itemService.createComment(ITEM_ID, USER_ID, commentDto);
+        assertEquals(testComment.getId(), commentDto.getId());
+        assertEquals(testComment.getItem(), commentDto.getItem());
+        assertEquals(testComment.getText(), commentDto.getText());
+        assertEquals(testComment.getAuthorName(), commentDto.getAuthorName());
+    }
+
+    @Test
+    void test_13_createEmptyComment_And_ReturnException() {
         CommentDto commentDto = new CommentDto();
         commentDto.setText("");
         assertThrows(ValidationException.class, () -> {

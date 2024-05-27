@@ -56,7 +56,8 @@ public class ItemServiceImpl implements ItemService {
         return createdItemDto;
     }
 
-    private ItemRequest getItemRequest(ItemDto itemDto) {
+    @Override
+    public ItemRequest getItemRequest(ItemDto itemDto) {
         return itemRequestRepository.findById(itemDto.getRequestId())
                 .orElseThrow(() -> new NotFoundException("fail: itemRequestId Not Found!"));
     }
