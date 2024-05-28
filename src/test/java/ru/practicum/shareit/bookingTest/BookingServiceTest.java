@@ -3,6 +3,8 @@ package ru.practicum.shareit.bookingTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,16 +21,11 @@ import ru.practicum.shareit.booking.BookingServiceImpl;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.InputBookingDto;
 import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.exception.InvalidStateException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.item.*;
+import ru.practicum.shareit.user.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,6 +57,10 @@ public class BookingServiceTest {
     private ItemMapper itemMapper;
     @Mock
     private UserMapper userMapper;
+    @Mock
+    private ItemRepository itemRepository;
+    @Mock
+    private UserRepository userRepository;
 
     private static final Long BOOKING_ID = 1L;
     private static final Long ITEM_ID = 1L;
@@ -83,6 +84,9 @@ public class BookingServiceTest {
     private final BookingDto bookingDto = new BookingDto(BOOKING_ID, ITEM_ID, booking.getStart(), booking.getEnd(), itemDto, bookerDto, BookingStatus.APPROVED);
     private final List<Booking> bookings = List.of(booking);
     private final List<BookingDto> bookingDtoList = List.of(bookingDto);
+    //For ParameterizedTest
+    private final Item itemForParamTest = new Item(ITEM_ID, "item", "descriptionItem", true, null, booker, null, null, null);
+    private final Booking bookingForParamTest = new Booking(BOOKING_ID, inputBookingDto.getStart(), inputBookingDto.getEnd(), item, booker, BookingStatus.WAITING);
 
     @BeforeEach
     void setUp() {
@@ -153,7 +157,7 @@ public class BookingServiceTest {
 
     @Test
     void test_8_createOwnerNotBeBooker_And_ReturnException() {
-        when(itemService.getById(any(Long.class))).thenReturn(itemDto);
+        when(itemService.getById(any())).thenReturn(itemDto);
         NotFoundException exception = assertThrows(NotFoundException.class, () -> bookingService.create(inputBookingDto, USER_ID), "fail: owner can not be a booker!");
         assertEquals("fail: owner can not be a booker!", exception.getMessage());
     }
@@ -178,7 +182,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_11_approveApprovedBooking_And_ReturnBooking() {
+    void test_11_approve_ApprovedBooking_And_ReturnBooking() {
         Booking appBooking = Booking.builder()
                 .booker(booker)
                 .id(1L)
@@ -187,6 +191,76 @@ public class BookingServiceTest {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(appBooking));
         Exception exception = assertThrows(ValidationException.class, () -> bookingService.approve(1L, 1L, true));
         assertEquals(exception.getMessage(), "fail: booking is already approved!");
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"ALL, 0, 2", "CURRENT, -2, 2", "PAST, -3, -1", "FUTURE, 2, 4", "WAITING, 0, 1", "REJECTED, 1, 3"})
+    void test_12_getAllOwnerBookings_AndReturnedList(String state, int startTime, int endTime) {
+        LocalDateTime start = LocalDateTime.now().plusDays(startTime);
+        LocalDateTime end = LocalDateTime.now().plusDays(endTime);
+        Page<Booking> bookingPage = new PageImpl<>(bookings, PageRequest.of(0, 10), bookings.size());
+        bookingForParamTest.setBooker(user);
+        bookingForParamTest.setStart(start);
+        bookingForParamTest.setEnd(end);
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(itemForParamTest));
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(bookingRepository.save(any())).thenReturn(bookingForParamTest);
+        when(bookingRepository.findByItemOwnerIdOrderByStartDesc(anyLong(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(anyLong(),any(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByItemOwnerIdAndStartIsAfterAndStatusOrderByStartDesc(anyLong(), any(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+
+
+        List<BookingDto> bookings = bookingService.getAllOwnerBookings(user.getId(), state, 0, 10);
+        assertFalse(bookings.isEmpty());
+        assertEquals(bookings.get(0).getId(), 1L);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"ALL, 0, 2", "CURRENT, -2, 2", "PAST, -3, -1", "FUTURE, 2, 4", "WAITING, 0, 1", "REJECTED, 1, 3"})
+    void test_13_getAllUserBookings_AndReturnedList(String state, int startTime, int endTime) {
+        LocalDateTime start = LocalDateTime.now().plusDays(startTime);
+        LocalDateTime end = LocalDateTime.now().plusDays(endTime);
+        Page<Booking> bookingPage = new PageImpl<>(bookings, PageRequest.of(0, 10), bookings.size());
+        bookingForParamTest.setBooker(user);
+        bookingForParamTest.setStart(start);
+        bookingForParamTest.setEnd(end);
+
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(itemForParamTest));
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(bookingRepository.save(any())).thenReturn(bookingForParamTest);
+        when(bookingRepository.findByBookerIdOrderByStartDesc(anyLong(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(anyLong(),any(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByBookerIdAndStartIsAfterAndStatusOrderByStartDesc(anyLong(), any(), any(), any())).thenReturn(bookingPage);
+        when(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
+
+        List<BookingDto> bookings = bookingService.getAllUserBookings(user.getId(), state, 0, 10);
+        assertFalse(bookings.isEmpty());
+        assertEquals(bookings.get(0).getId(), 1L);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = "UNSUPPORTED")
+    void test_14_getAllOwnerBookingsWrongState(String state) {
+        when(bookingRepository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+                anyLong(),any(), any(), any())).thenThrow(new InvalidStateException(""));
+        Exception exception = assertThrows(InvalidStateException.class, () -> bookingService.getAllOwnerBookings(user.getId(), state, 0, 10));
+        assertEquals(exception.getMessage(), "Unknown state: " + state);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = "UNSUPPORTED")
+    void test_14_getAllUserBookingsWrongState(String state) {
+        when(bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+                anyLong(),any(), any(), any())).thenThrow(new InvalidStateException(""));
+        Exception exception = assertThrows(InvalidStateException.class, () -> bookingService.getAllUserBookings(user.getId(), state, 0, 10));
+        assertEquals(exception.getMessage(), "Unknown state: " + state);
     }
 
 }

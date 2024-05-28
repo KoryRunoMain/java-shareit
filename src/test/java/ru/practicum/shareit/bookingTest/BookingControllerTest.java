@@ -82,7 +82,7 @@ public class BookingControllerTest {
 
     @Test
     void test_1_createBooking_And_ReturnStatusOk() throws Exception {
-        when(bookingService.create(any(InputBookingDto.class), anyLong())).thenReturn(bookingDto);
+        when(bookingService.create(any(), anyLong())).thenReturn(bookingDto);
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", USER_ID)
                         .content(mapper.writeValueAsString(inputBookingDto))
