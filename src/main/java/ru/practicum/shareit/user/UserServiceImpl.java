@@ -38,9 +38,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(UserDto userDto, Long userId) {
         User user = userMapper.toUser(getById(userId));
-        if (getById(userId) == null) {
-            throw new NotFoundException("fail: user Not Found!");
-        }
         Optional<User> existingUser = repository.findByIdNotAndEmail(userId, user.getEmail());
         if (existingUser.isPresent()) {
             throw new AlreadyExistsException("fail: email Is Already Taken!");

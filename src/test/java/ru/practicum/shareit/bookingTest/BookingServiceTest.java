@@ -96,10 +96,8 @@ public class BookingServiceTest {
     @Test
     void test_1_getById_And_ReturnBooking() {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
-        when(bookingMapper.toBookingDto(any(Booking.class))).thenReturn(bookingDto);
         assertEquals(bookingDto, bookingService.getById(user.getId(), booking.getId()));
         verify(bookingRepository).findById(anyLong());
-        verify(bookingMapper).toBookingDto(any(Booking.class));
     }
 
     @Test

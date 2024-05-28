@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemDto;
 import ru.practicum.shareit.item.ItemMapper;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
@@ -88,14 +90,22 @@ public class RequestServiceTest {
     }
 
     @Test
-    void test_3_getOwnItemRequests_AndReturnItemRequest() {
+    void test_3_getByWrongId_AndReturnException() {
+        when(userService.getById(anyLong())).thenReturn(requestorDto);
+        when(itemRequestRepository.findById(10L)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(NotFoundException.class, () -> itemRequestService.getById(10L, 1L));
+        assertEquals(exception.getMessage(), "fail: requestId Not Found!");
+    }
+
+    @Test
+    void test_4_getOwnItemRequests_AndReturnItemRequest() {
         when(itemRequestRepository.findAllByRequestorId(anyLong(), any(Pageable.class))).thenReturn(itemRequestList);
         List<ItemRequestDto> foundItemRequestDtos = itemRequestService.getOwnItemRequests(USER_ID, 0, 10);
         assertEquals(itemRequestDtoList, foundItemRequestDtos);
     }
 
     @Test
-    void test_4_getAllItemRequests_AndReturnItemRequest() {
+    void test_5_getAllItemRequests_AndReturnItemRequest() {
         when(itemRequestRepository.findAllByRequestorIdIsNot(anyLong(), any(Pageable.class))).thenReturn(itemRequestList);
         List<ItemRequestDto> foundItemRequestDtos = itemRequestService.getAllItemRequests(USER_ID, 0, 10);
         assertEquals(itemRequestDtoList, foundItemRequestDtos);

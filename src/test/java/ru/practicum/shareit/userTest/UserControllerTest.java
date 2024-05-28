@@ -3,20 +3,23 @@ package ru.practicum.shareit.userTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.exception.AlreadyExistsException;
+import ru.practicum.shareit.exception.ErrorHandler;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,30 +32,39 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class UserControllerTest {
 
     @Mock
-    private UserService service;
+    private UserService userService;
 
     @InjectMocks
     private UserController controller;
 
-    private static final Long USER_ID = 1L;
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Mock
+    private UserRepository userRepository;
+
     private MockMvc mvc;
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    private static final Long USER_ID = 1L;
+    private static final Long WRONG_ID = 10L;
 
     private final UserDto userDto = new UserDto(USER_ID, "user", "user@user.user");
-    private final UserDto updatedUserDto = new UserDto(USER_ID, "user", "user@user.user");
+    private final UserDto wrongUserDto = new UserDto(USER_ID, "", "user@user.user");
+    private final UserDto updatedUserDto = new UserDto(USER_ID, "updatedUser", "updatedUser@user.user");
 
     @BeforeEach
     void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new ErrorHandler())
+                .build();
     }
 
     @Test
     void test_1_createUser_And_ReturnStatusOk() throws Exception {
-        when(service.create(any(UserDto.class))).thenReturn(userDto);
+        when(userService.create(any(UserDto.class))).thenReturn(userDto);
         mvc.perform(post("/users")
                 .content(mapper.writeValueAsString(userDto))
                 .characterEncoding(StandardCharsets.UTF_8)
@@ -64,7 +76,7 @@ public class UserControllerTest {
             .andExpect(jsonPath("$.email", is(userDto.getEmail())));
 
         ArgumentCaptor<UserDto> userDtoCaptor = ArgumentCaptor.forClass(UserDto.class);
-        verify(service).create(userDtoCaptor.capture());
+        verify(userService).create(userDtoCaptor.capture());
 
         UserDto capturedUserDto = userDtoCaptor.getValue();
         assertThat(userDto.getId(), equalTo(capturedUserDto.getId()));
@@ -73,8 +85,19 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_2_updateUser_And_ReturnStatusOk() throws Exception {
-        when(service.update(any(UserDto.class), anyLong())).thenReturn(updatedUserDto);
+    void test_2_createUserWithWrongData_And_ReturnException() throws Exception {
+        mvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(wrongUserDto))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(userService, never()).create(userDto);
+    }
+
+    @Test
+    void test_3_updateUser_And_ReturnStatusOk() throws Exception {
+        when(userService.update(any(UserDto.class), anyLong())).thenReturn(updatedUserDto);
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(updatedUserDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -87,7 +110,7 @@ public class UserControllerTest {
 
         ArgumentCaptor<UserDto> userDtoCaptor = ArgumentCaptor.forClass(UserDto.class);
         ArgumentCaptor<Long> userIdCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(service).update(userDtoCaptor.capture(), userIdCaptor.capture());
+        verify(userService).update(userDtoCaptor.capture(), userIdCaptor.capture());
 
         UserDto capturedUserDto = userDtoCaptor.getValue();
         assertThat(updatedUserDto.getId(), equalTo(capturedUserDto.getId()));
@@ -96,33 +119,60 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_3_getUser_And_ReturnStatusOk() throws Exception {
-        when(service.getById(eq(1L))).thenReturn(userDto);
+    void test_4_updateUserWithExistingEmail_And_ReturnException() throws Exception {
+        UserDto userDtoWithExistingEmail = new UserDto(USER_ID, "user2", "user@user.user");
+        when(userService.getById(anyLong())).thenReturn(userDto);
+        when(userRepository.findByIdNotAndEmail(anyLong(), anyString())).thenReturn(Optional.of(new User()));
+        when(userService.update(any(UserDto.class), anyLong()))
+                .thenThrow(new AlreadyExistsException("fail: email Is Already Taken!"));
+        mvc.perform(patch("/users/{id}", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(userDtoWithExistingEmail))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+        verify(userService).update(refEq(userDtoWithExistingEmail), eq(USER_ID));
+    }
+
+    @Test
+    void test_5_getUser_And_ReturnStatusOk() throws Exception {
+        when(userService.getById(eq(1L))).thenReturn(userDto);
         mvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName())))
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
-        verify(service).getById(eq(1L));
+        verify(userService).getById(eq(1L));
     }
 
     @Test
-    void test_4_getAllUsers_And_ReturnStatusOk() throws Exception {
-        when(service.getAll()).thenReturn(List.of(userDto));
+    void test_6_getUserWithNotFoundUser_And_ReturnException() throws Exception {
+        Mockito.when(userService.getById(WRONG_ID))
+                .thenThrow(new NotFoundException("fail: user/owner ID Not Found!"));
+
+        mvc.perform(get("/users/{id}", WRONG_ID))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+    @Test
+    void test_7_getAllUsers_And_ReturnStatusOk() throws Exception {
+        when(userService.getAll()).thenReturn(List.of(userDto));
         mvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$[0].name", is(userDto.getName())))
                 .andExpect(jsonPath("$[0].email", is(userDto.getEmail())));
-        verify(service).getAll();
+        verify(userService).getAll();
     }
 
     @Test
-    void test_5_deleteUser_And_ReturnStatusOk() throws Exception {
-        doNothing().when(service).delete(eq(1L));
+    void test_8_deleteUser_And_ReturnStatusOk() throws Exception {
+        doNothing().when(userService).delete(eq(1L));
         mvc.perform(delete("/users/1")).andExpect(status().isOk());
-        verify(service).delete(eq(1L));
+        verify(userService).delete(eq(1L));
     }
 
 }

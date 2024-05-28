@@ -3,11 +3,11 @@ package ru.practicum.shareit.requestTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -30,7 +30,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class RequestControllerTest {
 
     @Mock
@@ -40,6 +41,7 @@ public class RequestControllerTest {
     ItemRequestController controller;
 
     private static final Long REQUEST_ID = 1L;
+    private static final Long USER_ID = 1L;
     private final ObjectMapper mapper = new ObjectMapper();
     private MockMvc mvc;
 
@@ -56,7 +58,7 @@ public class RequestControllerTest {
     void test_1_createItemRequest_And_ReturnStatusOk() throws Exception {
         when(service.create(anyLong(), any(ItemRequestDto.class))).thenReturn(itemRequestDto);
         mvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .content(mapper.writeValueAsString(itemRequestDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +86,7 @@ public class RequestControllerTest {
     void test_2_getItemRequestById_And_ReturnStatusOk() throws Exception {
         when(service.getById(anyLong(), anyLong())).thenReturn(itemRequestDto);
         mvc.perform(get("/requests/1")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .content(mapper.writeValueAsString(itemRequestDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,7 +104,7 @@ public class RequestControllerTest {
     void test_3_getAllItemRequests_And_ReturnStatusOk() throws Exception {
         when(service.getAllItemRequests(anyLong(), anyInt(), anyInt())).thenReturn(itemRequestDtoList);
         mvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .param("from", String.valueOf(0))
                         .param("size", String.valueOf(10))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -114,14 +116,14 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$[0].description", is(itemRequestDto.getDescription())))
                 .andExpect(jsonPath("$[1].id", is(itemRequestDto2.getId()), Long.class))
                 .andExpect(jsonPath("$[1].description", is(itemRequestDto2.getDescription())));
-        verify(service).getAllItemRequests(1L, 0, 10);
+        verify(service).getAllItemRequests(USER_ID, 0, 10);
     }
 
     @Test
     void test_4_getOwnItemRequests_And_ReturnStatusOk() throws Exception {
         when(service.getOwnItemRequests(anyLong(), anyInt(), anyInt())).thenReturn(itemRequestDtoList);
         mvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header("X-Sharer-User-Id", USER_ID)
                         .param("from", String.valueOf(0))
                         .param("size", String.valueOf(10))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -133,7 +135,7 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$[0].description", is(itemRequestDto.getDescription())))
                 .andExpect(jsonPath("$[1].id", is(itemRequestDto2.getId()), Long.class))
                 .andExpect(jsonPath("$[1].description", is(itemRequestDto2.getDescription())));
-        verify(service).getOwnItemRequests(1L, 0, 10);
+        verify(service).getOwnItemRequests(USER_ID, 0, 10);
     }
 
 }

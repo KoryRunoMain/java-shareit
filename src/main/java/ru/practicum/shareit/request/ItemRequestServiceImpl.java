@@ -68,7 +68,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,"created"));
         List<ItemRequest> itemRequestList = itemRequestRepository.findAllByRequestorId(userId, pageRequest);
         if (itemRequestList.isEmpty()) {
-            log.info("fail: itemRequestList is Empty!");
+            log.info("itemRequestList is Empty!");
         }
 
         List<ItemRequestDto> itemRequestDtoList = createItemRequestList(itemRequestList);
@@ -84,7 +84,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,"created"));
         List<ItemRequest> itemRequestList = itemRequestRepository.findAllByRequestorIdIsNot(userId, pageRequest);
         if (itemRequestList.isEmpty()) {
-            log.info("fail: itemRequestList is Empty!");
+            log.info("itemRequestList is Empty!");
         }
 
         List<ItemRequestDto> itemRequestDtoList = createItemRequestList(itemRequestList);
