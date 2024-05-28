@@ -1,6 +1,5 @@
 package ru.practicum.shareit.itemTest;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -98,24 +97,11 @@ public class ItemServiceTest {
     private final Comment comment = new Comment(COMMENT_ID, "comment", item, user, LocalDateTime.now().minusMinutes(60));
     private final CommentDto commentDto = CommentDto.builder().id(COMMENT_ID).text("comment").item(itemDto).authorName("user").build();
 
-    @BeforeEach
-    void setUp() {
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
-        when(userService.getById(anyLong())).thenReturn(userDto);
-        when(userMapper.toUser(any(UserDto.class))).thenReturn(user);
-        when(userMapper.toUserDto(any(User.class))).thenReturn(userDto);
-        when(itemRequestMapper.toItemRequest(any(ItemRequestDto.class))).thenReturn(itemRequest);
-        when(itemRequestMapper.toItemRequestDto(any(ItemRequest.class))).thenReturn(itemRequestDto);
-        lenient().when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
-        lenient().when(itemMapper.toItem(any(ItemDto.class))).thenReturn(item);
-        lenient().when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
-        lenient().when(commentMapper.toComment(any())).thenReturn(comment);
-        lenient().when(commentMapper.toCommentDto(any())).thenReturn(commentDto);
-        lenient().when(commentRepository.save(any())).thenReturn(comment);
-    }
-
     @Test
     void test_1_create_And_ReturnItem() {
+        when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
+        when(itemMapper.toItem(any(ItemDto.class))).thenReturn(item);
+        when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         assertEquals(itemDto, itemService.create(itemDto, user.getId()));
         verify(itemRepository).save(item);
     }
@@ -129,6 +115,7 @@ public class ItemServiceTest {
 
     @Test
     void test_3_createWithNotFoundItemRequest_And_ReturnException() {
+        when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         when(itemService.getItemRequest(itemDto2)).thenThrow(new NotFoundException("fail: itemRequestId Not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> itemService.getItemRequest(itemDto2));
         assertEquals(exception.getMessage(), "fail: itemRequestId Not Found!");
@@ -172,6 +159,7 @@ public class ItemServiceTest {
 
     @Test
     void test_9_getAll_And_ReturnItem() {
+        when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
         Pageable pageable = PageRequest.of(0, 10);
         when(itemRepository.findAllByOwnerId(eq(user.getId()), eq(pageable))).thenReturn(itemsPage);
@@ -182,6 +170,7 @@ public class ItemServiceTest {
 
     @Test
     void test_10_search_And_ReturnItem() {
+        when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         String searchText = "descrip";
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
         Pageable pageable = PageRequest.of(0, 10);
@@ -202,6 +191,8 @@ public class ItemServiceTest {
 
     @Test
     void test_12_createComment() {
+        when(commentMapper.toCommentDto(any())).thenReturn(commentDto);
+        when(commentMapper.toComment(any())).thenReturn(comment);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(userService.getById(anyLong())).thenReturn(userDto);
         when(bookingRepository.findByItemIdAndBookerIdAndStatusAndEndIsBefore(anyLong(), anyLong(), any(), any())).thenReturn(bookingList);
