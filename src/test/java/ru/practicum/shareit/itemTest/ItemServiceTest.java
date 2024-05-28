@@ -151,6 +151,13 @@ public class ItemServiceTest {
     }
 
     @Test
+    void test_7_1_getItemById_And_ReturnItem() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
+        assertEquals(itemDto, itemService.getItemById(item.getId(), user.getId()));
+    }
+
+    @Test
     void test_8_getByIdWithNotFoundItem_And_ReturnException() {
         when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("itemId not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> itemService.getItemById(WRONG_ITEM_ID, USER_ID));

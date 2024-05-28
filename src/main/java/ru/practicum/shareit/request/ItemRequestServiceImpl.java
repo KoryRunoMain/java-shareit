@@ -67,9 +67,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         int page = from / size;
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,"created"));
         List<ItemRequest> itemRequestList = itemRequestRepository.findAllByRequestorId(userId, pageRequest);
-        if (itemRequestList.isEmpty()) {
-            log.info("itemRequestList is Empty!");
-        }
 
         List<ItemRequestDto> itemRequestDtoList = createItemRequestList(itemRequestList);
         log.info("method: getAllItemRequests |Request/Response|" + " userId={}, page={}, size={} " +
@@ -83,9 +80,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         int page = from / size;
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,"created"));
         List<ItemRequest> itemRequestList = itemRequestRepository.findAllByRequestorIdIsNot(userId, pageRequest);
-        if (itemRequestList.isEmpty()) {
-            log.info("itemRequestList is Empty!");
-        }
 
         List<ItemRequestDto> itemRequestDtoList = createItemRequestList(itemRequestList);
         log.info("method: getAllItemRequests |Request/Response|" + " userId={}, page={}, size={} " +
