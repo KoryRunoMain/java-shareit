@@ -51,7 +51,7 @@ public class RequestRepositoryTest {
     }
 
     @Test
-    void whenFindAllByRequestorId_thenReturnsList() {
+    void findAllByRequestorId_successfullyFindList() {
         Pageable pageable = PageRequest.of(0, 10);
         List<ItemRequest> result = itemRequestRepository.findAllByRequestorId(REQUESTOR_ID, pageable);
         assertThat(result).isNotEmpty();
@@ -59,7 +59,7 @@ public class RequestRepositoryTest {
     }
 
     @Test
-    void whenFindAllByNonExistingRequestorId_thenReturnsEmptyList() {
+    void findAllByNotExistingRequestorId_returnsEmptyList() {
         Pageable pageable = PageRequest.of(0, 10);
 
         List<ItemRequest> result = itemRequestRepository.findAllByRequestorId(NON_REQUESTOR_ID, pageable);
@@ -68,7 +68,7 @@ public class RequestRepositoryTest {
     }
 
     @Test
-    void whenFindAllByRequestorIdIsNot_thenReturnsList() {
+    void findAllByNotRequestorId_successfullyFindList() {
         Pageable pageable = PageRequest.of(0, 10);
         List<ItemRequest> result = itemRequestRepository.findAllByRequestorIdIsNot(REQUESTOR_ID, pageable);
         assertThat(result).isEmpty();
@@ -76,7 +76,7 @@ public class RequestRepositoryTest {
     }
 
     @Test
-    void whenFindAllByRequestorIdIsNot_withNonExistingId_thenReturnsAllRequests() {
+    void findAllByNotRequestorIdWithNonExistingId_successfullyFindList() {
         Pageable pageable = PageRequest.of(0, 10);
 
         List<ItemRequest> result = itemRequestRepository.findAllByRequestorIdIsNot(NON_REQUESTOR_ID, pageable);

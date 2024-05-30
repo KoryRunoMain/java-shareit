@@ -56,14 +56,14 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_1_findByItemId() {
+    void findByItemId_successfully() {
         List<Booking> foundedBookings = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
         assertThat(foundedBookings.size(), equalTo(1));
         assertThat(foundedBookings.get(0), equalTo(booking));
     }
 
     @Test
-    void test_2_findByBookerId_Current() {
+    void findByBookerId_Current_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         LocalDateTime timeBefore = booking.getStart().minusMinutes(1);
         LocalDateTime timeAfter = booking.getEnd().plusMinutes(1);
@@ -74,7 +74,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_3_findByBookerId_Past() {
+    void findByBookerId_Past_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         LocalDateTime timeAfter = booking.getEnd().plusMinutes(1);
         Page<Booking> foundedBookings = bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(
@@ -84,7 +84,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_4_findByBookerId_Future() {
+    void findByBookerId_Future_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         LocalDateTime timeBefore = booking.getStart().minusMinutes(1);
         Page<Booking> foundedBookings = bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(
@@ -94,7 +94,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_5_findByBooker_Rejected() {
+    void findByBooker_Rejected_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Booking> foundedBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(
                 BOOKER_ID, WAITING, pageable);
@@ -103,7 +103,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_6_findByOwnerId_Current() {
+    void findByOwnerId_Current_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         LocalDateTime timeBefore = booking.getStart().minusMinutes(1);
         LocalDateTime timeAfter = booking.getEnd().plusMinutes(1);
@@ -114,7 +114,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_7_findByOwnerId_Past() {
+    void findByOwnerId_Past_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         LocalDateTime timeAfter = booking.getEnd().plusMinutes(1);
         Page<Booking> foundedBookings = bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(
@@ -123,7 +123,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_8_findByOwnerId_Future() {
+    void findByOwnerId_Future_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         LocalDateTime timeBefore = booking.getStart().minusMinutes(1);
         Page<Booking> foundedBookings = bookingRepository.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(
@@ -132,7 +132,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void test_9_findByOwnerId_Rejected() {
+    void findByOwnerId_Rejected_successfully() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Booking> foundedBookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(
                 USER_ID, WAITING, pageable);

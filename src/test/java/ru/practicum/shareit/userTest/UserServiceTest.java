@@ -38,12 +38,12 @@ public class UserServiceTest {
     private UserServiceImpl userService;
 
     private static final Long USER_ID = 1L;
+    private static final Long WRONG_ID = 5L;
 
     //User
     private final User user = new User(USER_ID, "user", "user@user.user");
-    private final User wrongUser = new User(5L, null, null);
+    private final User wrongUser = new User(WRONG_ID, null, null);
     private final UserDto userDto = new UserDto(USER_ID, "user", "user@user.user");
-    private final UserDto wrongUserDto = new UserDto(5L, null, null);
     private final UserDto updatedUserDto = new UserDto(USER_ID, "updatedUser", "user@user.user");
 
     @BeforeEach
@@ -53,19 +53,19 @@ public class UserServiceTest {
     }
 
     @Test
-    void test_1_getById_And_ReturnUser() {
+    void getById_successfullyGet() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        assertEquals(userDto, userService.getById(1L));
+        assertEquals(userDto, userService.getById(USER_ID));
     }
 
     @Test
-    void test_2_getByWrongId_And_ReturnErrorMessage() {
+    void getById_notFoundUserId() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> userService.getById(100L));
+        assertThrows(NotFoundException.class, () -> userService.getById(WRONG_ID));
     }
 
     @Test
-    void test_3_getAll_And_ReturnUserList() {
+    void getAll_successfullyGetList() {
         when(userRepository.findAll()).thenReturn(Collections.singletonList(user));
         List<UserDto> list = userService.getAll();
         assertNotNull(list);
@@ -75,23 +75,23 @@ public class UserServiceTest {
     }
 
     @Test
-    void test_4_create_And_ReturnUser() {
+    void create_successfullyCreated() {
         when(userRepository.save(any())).thenReturn(user);
         assertEquals(userService.create(userDto), userDto);
     }
 
     @Test
-    void test_5_createWithWrongData_And_ReturnException() {
+    void create_notFoundUser() {
         when(userRepository.save(any())).thenReturn(wrongUser);
-        assertThrows(NotFoundException.class, () -> userService.getById(5L));
+        assertThrows(NotFoundException.class, () -> userService.getById(WRONG_ID));
     }
 
     @Test
-    void test_6_update_And_ReturnUser() {
+    void update_successfullyUpdated() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(mapper.toUser(updatedUserDto)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        UserDto updatedUser = userService.update(updatedUserDto, 1L);
+        UserDto updatedUser = userService.update(updatedUserDto, USER_ID);
         assertNotNull(updatedUser);
         assertEquals(userDto.getName(), updatedUser.getName());
         assertEquals(userDto.getEmail(), updatedUser.getEmail());
@@ -99,29 +99,28 @@ public class UserServiceTest {
     }
 
     @Test
-    void test_7_updateNotFoundUser_And_ReturnException() {
+    void update_notFoundUserId() {
         when(userRepository.findById(anyLong())).thenThrow(new NotFoundException("fail: user Not Found!"));
 
         Exception exception = assertThrows(NotFoundException.class,
-                () -> userService.update(userDto, 10L));
+                () -> userService.update(userDto, WRONG_ID));
         assertEquals(exception.getMessage(), "fail: user Not Found!");
     }
 
     @Test
-    void test_8_updateExistingEmail_And_ReturnException() {
-        UserDto failUserDto = new UserDto(10L, "dailUser", "user@user.user");
+    void update_alreadyExistEmailFail() {
+        UserDto failUserDto = new UserDto(WRONG_ID, "dailUser", "user@user.user");
         when(userRepository.findById(anyLong())).thenThrow(new AlreadyExistsException("fail: email Is Already Taken!"));
 
         Exception exception = assertThrows(AlreadyExistsException.class,
-                () -> userService.update(failUserDto, 1L));
+                () -> userService.update(failUserDto, USER_ID));
         assertEquals(exception.getMessage(), "fail: email Is Already Taken!");
     }
 
     @Test
-    void test_9_delete_And_ReturnStatusOk() {
-        Long userId = 1L;
-        userService.delete(userId);
-        verify(userRepository, times(1)).deleteById(userId);
+    void delete_successfullyDeleted() {
+        userService.delete(USER_ID);
+        verify(userRepository, times(1)).deleteById(USER_ID);
     }
 
 }

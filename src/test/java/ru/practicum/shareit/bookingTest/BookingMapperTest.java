@@ -69,14 +69,14 @@ public class BookingMapperTest {
 
 
     @Test
-    void test_1_toBookingDto_And_ReturnOk() {
+    void toBookingDto_successfully() {
         BookingDto actBookingDto = bookingMapper.toBookingDto(booking);
         assertEquals(actBookingDto.getId(), bookingDto.getId());
         assertEquals(actBookingDto.getStatus(), bookingDto.getStatus());
     }
 
     @Test
-    void test_2_toBooking_And_ReturnOk() {
+    void toBooking_successfully() {
         Booking actBooking = bookingMapper.toBooking(inputBookingDto, userDto, itemDto);
         assertNotNull(actBooking);
         assertEquals(actBooking.getStart(), inputBookingDto.getStart());
@@ -84,7 +84,7 @@ public class BookingMapperTest {
     }
 
     @Test
-    void test_3_toItemBookingDto_And_ReturnOk() {
+    void toItemBookingDto_successfully() {
         ShortBookingDto actShortBooking = bookingMapper.toItemBookingDto(booking);
         assertEquals(actShortBooking.getId(), bookingDto.getId());
     }

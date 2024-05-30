@@ -74,7 +74,7 @@ public class RequestServiceTest {
     }
 
     @Test
-    void test_1_create_AndReturnItemRequest() {
+    void create_successfullyCreated() {
         when(itemRequestMapper.toItemRequest(any(ItemRequestDto.class))).thenReturn(itemRequest);
         ItemRequestDto createdItemRequestDto = itemRequestService.create(USER_ID, itemRequestDto);
         verify(itemRequestRepository).save(any(ItemRequest.class));
@@ -82,7 +82,7 @@ public class RequestServiceTest {
     }
 
     @Test
-    void test_2_getById_AndReturnItemRequest() {
+    void getById_successfullyGet() {
         when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         ItemRequestDto foundItemRequestDto = itemRequestService.getById(itemRequest.getId(), USER_ID);
         verify(itemRequestRepository).findById(itemRequest.getId());
@@ -90,7 +90,7 @@ public class RequestServiceTest {
     }
 
     @Test
-    void test_3_getByWrongId_AndReturnException() {
+    void getById_NotFoundRequestId() {
         when(userService.getById(anyLong())).thenReturn(requestorDto);
         when(itemRequestRepository.findById(10L)).thenReturn(Optional.empty());
         Exception exception = assertThrows(NotFoundException.class, () -> itemRequestService.getById(10L, 1L));
@@ -98,14 +98,14 @@ public class RequestServiceTest {
     }
 
     @Test
-    void test_4_getOwnItemRequests_AndReturnItemRequest() {
+    void getOwnItemRequests_successfullyGetList() {
         when(itemRequestRepository.findAllByRequestorId(anyLong(), any(Pageable.class))).thenReturn(itemRequestList);
         List<ItemRequestDto> foundItemRequestDtos = itemRequestService.getOwnItemRequests(USER_ID, 0, 10);
         assertEquals(itemRequestDtoList, foundItemRequestDtos);
     }
 
     @Test
-    void test_5_getAllItemRequests_AndReturnItemRequest() {
+    void getAllItemRequests_successfullyGetList() {
         when(itemRequestRepository.findAllByRequestorIdIsNot(anyLong(), any(Pageable.class))).thenReturn(itemRequestList);
         List<ItemRequestDto> foundItemRequestDtos = itemRequestService.getAllItemRequests(USER_ID, 0, 10);
         assertEquals(itemRequestDtoList, foundItemRequestDtos);

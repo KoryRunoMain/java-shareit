@@ -81,7 +81,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_1_createBooking_And_ReturnStatusOk() throws Exception {
+    void postBookings_successfullyCreated() throws Exception {
         when(bookingService.create(any(), anyLong())).thenReturn(bookingDto);
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -107,7 +107,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_2_createBookingWithInvalidData_And_ReturnException() throws Exception {
+    void postBookings_ValidationFail() throws Exception {
         InputBookingDto wrongInputBookingDto = InputBookingDto.builder()
                 .start(LocalDateTime.of(2000, 05, 28, 10, 00, 00))
                 .end(LocalDateTime.of(2024, 05, 28, 10, 00, 00))
@@ -126,7 +126,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_3_createBookingUserNotOwner_And_ReturnException() throws Exception {
+    void postBookings_NotFoundUserIsNotOwner() throws Exception {
         when(bookingService.create(any(), anyLong())).thenThrow(new NotFoundException(""));
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", WRONG_ID)
@@ -140,7 +140,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_4_getAllOwnerBookings_And_ReturnStatusOk() throws Exception {
+    void getOwnerBookings_successfullyGetList() throws Exception {
         when(bookingService.getAllOwnerBookings(anyLong(), anyString(), anyInt(), anyInt())).thenReturn(bookingDtoList);
         mvc.perform(get("/bookings/owner?state=ALL")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -157,7 +157,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_5_getAllUserBookings_And_ReturnStatusOk() throws Exception {
+    void getUserBookings_successfullyGetList() throws Exception {
         when(bookingService.getAllUserBookings(anyLong(), anyString(), anyInt(), anyInt())).thenReturn(bookingDtoList);
         mvc.perform(get("/bookings/?state=ALL")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -174,7 +174,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_6_getBooking_And_ReturnStatusOk() throws Exception {
+    void getBooking_successfullyGet() throws Exception {
         when(bookingService.getById(anyLong(), anyLong())).thenReturn(bookingDto);
         mvc.perform(get("/bookings/1")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -189,7 +189,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_7_getBookingWithNotFoundBookingId_And_ReturnException() throws Exception {
+    void getBooking_NotFoundBookingId() throws Exception {
         when(bookingService.getById(anyLong(), anyLong())).thenThrow(new NotFoundException(""));
         mvc.perform(get("/bookings/{bookingId}", WRONG_ID)
                         .header("X-Sharer-User-Id", USER_ID)
@@ -203,7 +203,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void test_8_approveBooking_And_ReturnStatusOk() throws Exception {
+    void patchApproveBooking_And_ReturnStatusOk() throws Exception {
         when(bookingService.approve(anyLong(), anyLong(), anyBoolean())).thenReturn(bookingDto);
         mvc.perform(patch("/bookings/1?approved=true")
                         .header("X-Sharer-User-Id", USER_ID)

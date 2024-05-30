@@ -50,14 +50,14 @@ public class RequestMapperTest {
             .build();
 
     @Test
-    void test_1_toItemRequestDto_And_ReturnOk() {
+    void toItemRequestDto_successfully() {
         ItemRequestDto actRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
         assertEquals(actRequestDto.getId(), itemRequestDto.getId());
         assertEquals(actRequestDto.getDescription(), itemRequestDto.getDescription());
     }
 
     @Test
-    void test_2_toItemRequest_And_ReturnOk() {
+    void toItemRequest_successfully() {
         ItemRequest actRequest = itemRequestMapper.toItemRequest(itemRequestDto);
         assertEquals(actRequest.getId(), itemRequest.getId());
         assertEquals(actRequest.getDescription(), itemRequest.getDescription());

@@ -30,13 +30,13 @@ public class UserRepositoriyTest {
     }
 
     @Test
-    void test_1_findByIdNotAndEmail_AndReturnEmpty() {
+    void findByIdNotAndEmail_returnEmpty() {
         Optional<User> findUser = userRepository.findByIdNotAndEmail(user2.getId(), user.getEmail());
         assertTrue(findUser.isEmpty());
     }
 
     @Test
-    void test_2_findByIdNotAndEmail_AndReturnUser() {
+    void findByIdNotAndEmail_returnUser() {
         Optional<User> findUser = userRepository.findByIdNotAndEmail(user.getId(), user.getEmail());
         assertEquals(1, List.of(findUser).size());
     }

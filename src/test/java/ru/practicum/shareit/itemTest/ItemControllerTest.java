@@ -52,7 +52,7 @@ public class ItemControllerTest {
     private final CommentDto wrongCommentDto = new CommentDto(COMMENT_ID, "", itemDto, "author", LocalDateTime.now());
 
     @Test
-    void test_1_createItem_And_ReturnStatusOk() throws Exception {
+    void createItem_successfullyCreated() throws Exception {
         when(itemService.create(any(), anyLong())).thenReturn(itemDto);
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", 1L)
@@ -84,7 +84,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_2_createItemWithNotExistingName_And_ReturnException() throws Exception {
+    void createItem_badRequestExistingName() throws Exception {
         when(itemService.create(any(), anyLong())).thenReturn(wrongItemDto);
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -99,7 +99,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_3_createItemIsNotAvailable_And_ReturnException() throws Exception {
+    void createItem_BadRequestWrongItem() throws Exception {
         when(itemService.create(any(), anyLong())).thenReturn(wrongItemDto);
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -113,7 +113,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_4_updateItem_And_ReturnedStatusOk() throws Exception {
+    void updateItem_successfullyUpdated() throws Exception {
         ItemDto updatedItemDto = ItemDto.builder()
                 .id(1L)
                 .name("updatedItem")
@@ -160,7 +160,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_5_getItem_And_ReturnStatusOk() throws Exception {
+    void getItem_successfullyGet() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong())).thenReturn(itemDto);
         mvc.perform(get("/items/1")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -175,7 +175,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_6_getItemWithNotFoundItem_And_ReturnException() throws Exception {
+    void getItem_notFoundItemId() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong())).thenThrow(new NotFoundException(""));
         mvc.perform(get("/items/{id}", WRONG_ID)
                         .header("X-Sharer-User-Id", USER_ID)
@@ -189,7 +189,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_7_getAllItems_And_ReturnedStatusOk() throws Exception {
+    void getAllItems_successfullyGetList() throws Exception {
         when(itemService.getAll(anyLong(), anyInt(), anyInt())).thenReturn(List.of(itemDto));
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -209,7 +209,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_8_getAllItemsWithNotExistingUser_And_ReturnedException() throws Exception {
+    void getAllItems_notFoundUserExist() throws Exception {
         when(itemService.getAll(anyLong(), anyInt(), anyInt())).thenThrow(new NotFoundException(""));
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", WRONG_ID))
@@ -221,7 +221,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_9_searchItem_And_ReturnedStatusOk() throws Exception {
+    void searchItem_successfullyFindItem() throws Exception {
         when(itemService.search(anyString(), anyInt(), anyInt())).thenReturn(List.of(itemDto));
         mvc.perform(get("/items/search")
                         .param("text", "des")
@@ -236,7 +236,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_10_createComment_And_ReturnedStatusOk() throws Exception {
+    void createComment_successfullyCreated() throws Exception {
         when(itemService.createComment(anyLong(), anyLong(), any())).thenReturn(commentDto);
         mvc.perform(post("/items/1/comment")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -252,7 +252,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void test_11_createCommentWithEmptyText_And_ReturnedException() throws Exception {
+    void createComment_badRequestEmptyText() throws Exception {
         when(itemService.createComment(any(), anyLong(), any())).thenReturn(commentDto);
         mvc.perform(post("/items/1/comment")
                         .header("X-Sharer-User-Id", USER_ID)

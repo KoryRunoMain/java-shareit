@@ -94,7 +94,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_1_getById_And_ReturnBooking() {
+    void getById_successfullyGet() {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
         assertEquals(bookingDto, bookingService.getById(user.getId(), booking.getId()));
@@ -102,14 +102,14 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_2_getByWrongId_And_ReturnException() {
+    void getById_notFoundBookingId() {
         when(bookingRepository.findById(WRONG_ID)).thenThrow(new NotFoundException("fail: bookingId Not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> bookingService.getById(USER_ID, WRONG_ID));
         assertEquals(exception.getMessage(), "fail: bookingId Not Found!");
     }
 
     @Test
-    void test_3_getByIdUserIsNotOwner_And_ReturnException() {
+    void getById_notFoundUserIsNotOwner() {
         when(bookingRepository.findById(BOOKING_ID)).thenThrow(new NotFoundException("fail: userId not equals bookerId or equals ownerId!"));
         Exception exception = assertThrows(NotFoundException.class, () -> bookingService.getById(BOOKER_ID, BOOKING_ID));
         assertEquals(exception.getMessage(), "fail: userId not equals bookerId or equals ownerId!");
@@ -117,7 +117,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_4_getUserBookings_And_Return_All() {
+    void getUserBookings_successfullyGetList() {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         Page<Booking> bookingPage = new PageImpl<>(bookings, PageRequest.of(0, 10), bookings.size());
         when(bookingRepository.findByBookerIdOrderByStartDesc(eq(USER_ID), eq(PageRequest.of(0, 10)))).thenReturn(bookingPage);
@@ -126,7 +126,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_5_getAllOwnerBookings_And_ReturnBookingList() {
+    void getAllOwnerBookings_successfullyGetList() {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         Page<Booking> bookingPage = new PageImpl<>(bookings, PageRequest.of(0, 10), bookings.size());
         when(bookingRepository.findByItemOwnerIdOrderByStartDesc(OWNER_ID, PageRequest.of(0, 10))).thenReturn(bookingPage);
@@ -135,7 +135,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_6_create_And_ReturnBooking() {
+    void create_successfully() {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         when(bookingMapper.toBooking(any(), any(), any())).thenReturn(booking);
         when(itemService.getById(ITEM_ID)).thenReturn(itemDto);
@@ -146,7 +146,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_7_createWithInvalidTime_And_ReturnException() {
+    void create_validationFail() {
         InputBookingDto bookingBadTime = InputBookingDto.builder()
                 .start(LocalDateTime.now().plusHours(1L))
                 .end(LocalDateTime.now().minusHours(1L))
@@ -157,14 +157,14 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_8_createOwnerNotBeBooker_And_ReturnException() {
+    void create_notFoundOwnerNotBooker() {
         when(itemService.getById(any())).thenReturn(itemDto);
         NotFoundException exception = assertThrows(NotFoundException.class, () -> bookingService.create(inputBookingDto, USER_ID), "fail: owner can not be a booker!");
         assertEquals("fail: owner can not be a booker!", exception.getMessage());
     }
 
     @Test
-    void test_9_createNotAvailable_And_ReturnException() {
+    void create_validationNotAvailable() {
         itemDto.setAvailable(false);
         when(userService.getById(anyLong())).thenReturn(userDto);
         when(itemService.getItemById(anyLong(), anyLong())).thenReturn(itemDto);
@@ -174,7 +174,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_10_approve_And_ReturnBooking() {
+    void approve_successfullyApprovedBooking() {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         booking.setStatus(BookingStatus.WAITING);
         when(bookingRepository.findById(BOOKING_ID)).thenReturn(Optional.of(booking));
@@ -184,7 +184,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void test_11_approve_ApprovedBooking_And_ReturnBooking() {
+    void approve_validationFail_bookingAlreadyApproved() {
         Booking appBooking = Booking.builder()
                 .booker(booker)
                 .id(1L)
@@ -197,7 +197,7 @@ public class BookingServiceTest {
 
     @ParameterizedTest
     @CsvSource(value = {"ALL, 0, 2", "CURRENT, -2, 2", "PAST, -3, -1", "FUTURE, 2, 4", "WAITING, 0, 1", "REJECTED, 1, 3"})
-    void test_12_getAllOwnerBookings_AndReturnedList(String state, int startTime, int endTime) {
+    void getAllOwnerBookings_successfullyGetList(String state, int startTime, int endTime) {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         LocalDateTime start = LocalDateTime.now().plusDays(startTime);
         LocalDateTime end = LocalDateTime.now().plusDays(endTime);
@@ -216,7 +216,6 @@ public class BookingServiceTest {
         when(bookingRepository.findByItemOwnerIdAndStartIsAfterAndStatusOrderByStartDesc(anyLong(), any(), any(), any())).thenReturn(bookingPage);
         when(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(anyLong(), any(), any())).thenReturn(bookingPage);
 
-
         List<BookingDto> bookings = bookingService.getAllOwnerBookings(user.getId(), state, 0, 10);
         assertFalse(bookings.isEmpty());
         assertEquals(bookings.get(0).getId(), 1L);
@@ -224,7 +223,7 @@ public class BookingServiceTest {
 
     @ParameterizedTest
     @CsvSource(value = {"ALL, 0, 2", "CURRENT, -2, 2", "PAST, -3, -1", "FUTURE, 2, 4", "WAITING, 0, 1", "REJECTED, 1, 3"})
-    void test_13_getAllUserBookings_AndReturnedList(String state, int startTime, int endTime) {
+    void getAllUserBookings_successfullyGetList(String state, int startTime, int endTime) {
         when(bookingMapper.toBookingDto(any())).thenReturn(bookingDto);
         LocalDateTime start = LocalDateTime.now().plusDays(startTime);
         LocalDateTime end = LocalDateTime.now().plusDays(endTime);
@@ -251,7 +250,7 @@ public class BookingServiceTest {
 
     @ParameterizedTest
     @CsvSource(value = "UNSUPPORTED")
-    void test_14_getAllOwnerBookingsWrongState(String state) {
+    void getAllOwnerBookings_invalidStateFail(String state) {
         when(bookingRepository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
                 anyLong(),any(), any(), any())).thenThrow(new InvalidStateException(""));
         Exception exception = assertThrows(InvalidStateException.class, () -> bookingService.getAllOwnerBookings(user.getId(), state, 0, 10));
@@ -260,7 +259,7 @@ public class BookingServiceTest {
 
     @ParameterizedTest
     @CsvSource(value = "UNSUPPORTED")
-    void test_14_getAllUserBookingsWrongState(String state) {
+    void getAllUserBookings_invalidStateFail(String state) {
         when(bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
                 anyLong(),any(), any(), any())).thenThrow(new InvalidStateException(""));
         Exception exception = assertThrows(InvalidStateException.class, () -> bookingService.getAllUserBookings(user.getId(), state, 0, 10));

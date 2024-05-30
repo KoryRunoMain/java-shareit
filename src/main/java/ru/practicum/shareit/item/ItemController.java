@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
+@Validated
 public class ItemController {
     private static final String OWNER_ID = "X-Sharer-User-Id";
     private final ItemService service;

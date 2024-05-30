@@ -53,7 +53,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    void test_1_getAllCreatedComments_AndReturnCommentList() {
+    void getAllCreatedComments_successfullyGetList() {
         when(commentRepository.findAllByItemIdOrderByCreatedDesc(anyLong())).thenReturn(commentList);
         List<Comment> list = commentService.getAllCreatedComments(ITEM_ID);
         assertNotNull(list);
@@ -62,14 +62,14 @@ public class CommentServiceTest {
     }
 
     @Test
-    void test_2_getAllCreatedCommentsWithWrongItemId_AndReturnException() {
+    void getAllCreatedComments_notFoundItemId() {
         when(commentRepository.findAllByItemIdOrderByCreatedDesc(anyLong())).thenThrow(new NotFoundException("fail: ItemId Not Found"));
         Exception exception = assertThrows(NotFoundException.class, () -> commentService.getAllCreatedComments(WRONG_ID));
         assertEquals(exception.getMessage(), "fail: ItemId Not Found");
     }
 
     @Test
-    void test_3_getAllComments_AndReturnCommentList() {
+    void getAllComments_successfullyGetList() {
         when(commentRepository.findAllByItemId(anyLong())).thenReturn(commentList);
         List<Comment> list = commentService.getAllComments(ITEM_ID);
         assertNotNull(list);
@@ -78,7 +78,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    void test_4_getAllCommentsWithWrongItemId_AndReturnException() {
+    void getAllComments_notFoundItemId() {
         when(commentRepository.findAllByItemId(anyLong())).thenThrow(new NotFoundException("fail: ItemId Not Found"));
         Exception exception = assertThrows(NotFoundException.class, () -> commentService.getAllComments(WRONG_ID));
         assertEquals(exception.getMessage(), "fail: ItemId Not Found");

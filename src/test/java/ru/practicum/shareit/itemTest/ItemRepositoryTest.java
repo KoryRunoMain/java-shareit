@@ -50,41 +50,41 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void test_1_searchItemsWithText_And_ReturnMatchingItems() {
+    void searchItems_successfullyFindItems() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Item> itemList = itemRepository.searchItems(SEARCH_TEXT, pageable);
         assertTrue(itemList.hasContent());
     }
 
     @Test
-    void test_2_searchItemsWithText_And_ReturnNotExisting() {
+    void searchItems_NotFoundRequest() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Item> itemList = itemRepository.searchItems(NOT_FOUND_TEXT, pageable);
         assertEquals(0, itemList.getTotalElements());
     }
 
     @Test
-    void test_3_findAllByOwnerId_And_ReturnItemList() {
+    void findAllByOwnerId_successfullyFindList() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Item> itemList = itemRepository.findAllByOwnerId(OWNER_ID, pageable);
         assertTrue(itemList.hasContent());
     }
 
     @Test
-    void test_4_findAllByNonExistingOwnerId_And_ReturnEmptyItemList() {
+    void findAllByNotExistingOwnerId_ReturnEmptyList() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Item> itemList = itemRepository.findAllByOwnerId(NON_OWNER_ID, pageable);
         assertEquals(0, itemList.getTotalElements());
     }
 
     @Test
-    void test_5_findAllByItemRequest_And_ReturnItemList() {
+    void findAllByItemRequest_successfullyFindList() {
         List<Item> itemList = itemRepository.findAllByItemRequest(itemRequest);
         assertFalse(itemList.isEmpty());
     }
 
     @Test
-    void test_6_findAllByNonExistingItemRequest_And_ReturnEmptyItemList() {
+    void findAllByNonExistingItemRequest_ReturnEmptyList() {
         Long nonExistentItemRequestId = 10L;
         ItemRequest nonExistingItemRequest = new ItemRequest();
         nonExistingItemRequest.setId(nonExistentItemRequestId);

@@ -51,13 +51,13 @@ public class CommentMapperTest {
             .build();
 
     @Test
-    void test_1_toCommentDto_And_ReturnOk() {
+    void toCommentDto_successfully() {
         CommentDto actCommentDto = commentMapper.toCommentDto(comment);
         assertEquals(actCommentDto.getText(), commentDto.getText());
     }
 
     @Test
-    void test_2_toComment_And_ReturnOk() {
+    void toComment_successfully() {
         Comment actComment = commentMapper.toComment(commentDto);
         assertEquals(actComment.getText(), comment.getText());
     }

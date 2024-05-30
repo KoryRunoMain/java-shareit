@@ -21,7 +21,7 @@ public class UserMapperTest {
     private final UserDto userDto = new UserDto(USER_ID, "user", "user@user.user");
 
     @Test
-    void test_1_toUser_And_ReturnOk() {
+    void toUser_successfully() {
         User actUser = userMapper.toUser(userDto);
         assertEquals(actUser.getId(), user.getId());
         assertEquals(actUser.getName(), user.getName());
@@ -29,7 +29,7 @@ public class UserMapperTest {
     }
 
     @Test
-    void test_2_toUserDto_And_ReturnOk() {
+    void toUserDto_successfully() {
         UserDto actUserDto = userMapper.toUserDto(user);
         assertEquals(actUserDto.getId(), userDto.getId());
         assertEquals(actUserDto.getName(), userDto.getName());

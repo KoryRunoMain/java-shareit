@@ -55,7 +55,7 @@ public class RequestControllerTest {
     }
 
     @Test
-    void test_1_createItemRequest_And_ReturnStatusOk() throws Exception {
+    void createItemRequest_successfullyCreated() throws Exception {
         when(service.create(anyLong(), any(ItemRequestDto.class))).thenReturn(itemRequestDto);
         mvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -83,7 +83,7 @@ public class RequestControllerTest {
     }
 
     @Test
-    void test_2_getItemRequestById_And_ReturnStatusOk() throws Exception {
+    void getItemRequestById_successfullyGet() throws Exception {
         when(service.getById(anyLong(), anyLong())).thenReturn(itemRequestDto);
         mvc.perform(get("/requests/1")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -101,7 +101,7 @@ public class RequestControllerTest {
     }
 
     @Test
-    void test_3_getAllItemRequests_And_ReturnStatusOk() throws Exception {
+    void getAllItemRequests_successfullyGetList() throws Exception {
         when(service.getAllItemRequests(anyLong(), anyInt(), anyInt())).thenReturn(itemRequestDtoList);
         mvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", USER_ID)
@@ -120,7 +120,7 @@ public class RequestControllerTest {
     }
 
     @Test
-    void test_4_getOwnItemRequests_And_ReturnStatusOk() throws Exception {
+    void getOwnItemRequests_successfullyGet() throws Exception {
         when(service.getOwnItemRequests(anyLong(), anyInt(), anyInt())).thenReturn(itemRequestDtoList);
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", USER_ID)

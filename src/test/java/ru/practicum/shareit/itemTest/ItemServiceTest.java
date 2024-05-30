@@ -98,7 +98,7 @@ public class ItemServiceTest {
     private final CommentDto commentDto = CommentDto.builder().id(COMMENT_ID).text("comment").item(itemDto).authorName("user").build();
 
     @Test
-    void test_1_create_And_ReturnItem() {
+    void create_successfullyCreated() {
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         when(itemMapper.toItem(any(ItemDto.class))).thenReturn(item);
         when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
@@ -107,14 +107,14 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_2_createWithUserNotExist_And_ReturnException() {
+    void create_notFoundUserId() {
         when(userService.getById(anyLong())).thenThrow(new NotFoundException("fail: user/owner ID Not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> itemService.create(itemDto, WRONG_USER_ID));
         assertEquals(exception.getMessage(), "fail: user/owner ID Not Found!");
     }
 
     @Test
-    void test_3_createWithNotFoundItemRequest_And_ReturnException() {
+    void create_notFoundItemRequest() {
         when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         when(itemService.getItemRequest(itemDto2)).thenThrow(new NotFoundException("fail: itemRequestId Not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> itemService.getItemRequest(itemDto2));
@@ -122,7 +122,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_4_update_And_ReturnItem() {
+    void update_successfullyUpdated() {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(updatedItem));
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(updatedItemDto);
         assertEquals(updatedItemDto, itemService.update(updatedItemDto, user.getId(), item.getId()));
@@ -130,42 +130,42 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_5_updateWithNotFoundItem_And_ReturnException() {
+    void update_notFoundItemId() {
         when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("itemId not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> itemService.update(itemDto, WRONG_ITEM_ID, USER_ID));
         assertEquals(exception.getMessage(), "itemId not Found!");
     }
 
     @Test
-    void test_6_updateUserNotEqualOwner_And_ReturnException() {
+    void updateUser_validationUserNotEqualOwner() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         Exception exception = assertThrows(ValidationException.class, () -> itemService.update(itemDto, ITEM_ID, WRONG_USER_ID));
         assertEquals(exception.getMessage(), "fail: ownerId and userId is not equals!");
     }
 
     @Test
-    void test_7_getById_And_ReturnItem() {
+    void getById_successfullyGet() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         assertEquals(itemDto, itemService.getById(item.getId()));
     }
 
     @Test
-    void test_7_1_getItemById_And_ReturnItem() {
+    void getItemById_successfullyGet() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         assertEquals(itemDto, itemService.getItemById(item.getId(), user.getId()));
     }
 
     @Test
-    void test_8_getByIdWithNotFoundItem_And_ReturnException() {
+    void getById_notFoundItemId() {
         when(itemRepository.findById(anyLong())).thenThrow(new NotFoundException("itemId not Found!"));
         Exception exception = assertThrows(NotFoundException.class, () -> itemService.getItemById(WRONG_ITEM_ID, USER_ID));
         assertEquals(exception.getMessage(), "itemId not Found!");
     }
 
     @Test
-    void test_9_getAll_And_ReturnItem() {
+    void getAll_successfullyGetList() {
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
         Pageable pageable = PageRequest.of(0, 10);
@@ -176,7 +176,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_10_search_And_ReturnItem() {
+    void search_successfullyGetItem() {
         when(itemMapper.toItemDto(any(Item.class))).thenReturn(itemDto);
         String searchText = "descrip";
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
@@ -188,7 +188,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_11_searchWithEmptyText_And_ReturnEmptyList() {
+    void searchEmptyText_ReturnEmptyList() {
         String searchText = "";
         assertThat(itemService.search(searchText, 0, 10), hasSize(0));
         assertThat(itemService.search(null, 0, 10), hasSize(0));
@@ -197,7 +197,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_12_createComment() {
+    void createComment_successfullyCreated() {
         when(commentMapper.toCommentDto(any())).thenReturn(commentDto);
         when(commentMapper.toComment(any())).thenReturn(comment);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
@@ -213,7 +213,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void test_13_createEmptyComment_And_ReturnException() {
+    void createEmptyComment_validationCreationFail() {
         CommentDto commentDto = new CommentDto();
         commentDto.setText("");
         assertThrows(ValidationException.class, () -> {

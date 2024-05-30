@@ -25,35 +25,35 @@ public class ErrorHandlerTest {
     private Logger log;
 
     @Test
-    void test_1_validationExceptionHandle_ReturnsBadRequestErrorResponse() {
+    void validationException_successfully() {
         ValidationException exception = new ValidationException("validation error");
         ErrorResponse response = errorHandler.validationExceptionHandle(exception);
         assertEquals("validation error", response.getError());
     }
 
     @Test
-    void test_2_alreadyExistExceptionHandler_ReturnsConflictErrorResponse() {
+    void alreadyExistException_successfully() {
         AlreadyExistsException exception = new AlreadyExistsException("already exists");
         ErrorResponse response = errorHandler.alreadyExistExceptionHandler(exception);
         assertEquals("already exists", response.getError());
     }
 
     @Test
-    void test_3_notFoundExceptionHandle_ReturnsNotFoundErrorResponse() {
+    void notFoundException_successfully() {
         NotFoundException exception = new NotFoundException("not found");
         ErrorResponse response = errorHandler.notFoundExceptionHandle(exception);
         assertEquals("not found", response.getError());
     }
 
     @Test
-    void test_4_throwableExceptionHandle_ReturnsInternalServerErrorErrorResponse() {
+    void throwableException_successfully() {
         Throwable exception = new RuntimeException("something went wrong");
         ErrorResponse response = errorHandler.throwableExceptionHandle(exception);
         assertEquals("something went wrong", response.getError());
     }
 
     @Test
-    void test_5_invalidStateException_ReturnsInternalServerErrorErrorResponse() {
+    void invalidStateException_successfully() {
         InvalidStateException exception = new InvalidStateException("invalid state");
         ErrorResponse response = errorHandler.invalidStateException(exception);
         assertEquals("invalid state", response.getError());

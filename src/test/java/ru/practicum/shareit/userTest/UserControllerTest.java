@@ -63,7 +63,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_1_createUser_And_ReturnStatusOk() throws Exception {
+    void createUser_successfullyCreated() throws Exception {
         when(userService.create(any(UserDto.class))).thenReturn(userDto);
         mvc.perform(post("/users")
                 .content(mapper.writeValueAsString(userDto))
@@ -85,7 +85,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_2_createUserWithWrongData_And_ReturnException() throws Exception {
+    void createUser_validationCreationFail() throws Exception {
         mvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(wrongUserDto))
@@ -96,7 +96,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_3_updateUser_And_ReturnStatusOk() throws Exception {
+    void updateUser_successfullyUpdated() throws Exception {
         when(userService.update(any(UserDto.class), anyLong())).thenReturn(updatedUserDto);
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(updatedUserDto))
@@ -119,7 +119,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_4_updateUserWithExistingEmail_And_ReturnException() throws Exception {
+    void updateUser_alreadyExistEmail() throws Exception {
         UserDto userDtoWithExistingEmail = new UserDto(USER_ID, "user2", "user@user.user");
         when(userService.getById(anyLong())).thenReturn(userDto);
         when(userRepository.findByIdNotAndEmail(anyLong(), anyString())).thenReturn(Optional.of(new User()));
@@ -134,7 +134,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_5_getUser_And_ReturnStatusOk() throws Exception {
+    void getUser_successfullyGet() throws Exception {
         when(userService.getById(eq(1L))).thenReturn(userDto);
         mvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
@@ -145,7 +145,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_6_getUserWithNotFoundUser_And_ReturnException() throws Exception {
+    void getUser_notFoundUserId() throws Exception {
         Mockito.when(userService.getById(WRONG_ID))
                 .thenThrow(new NotFoundException("fail: user/owner ID Not Found!"));
 
@@ -157,7 +157,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_7_getAllUsers_And_ReturnStatusOk() throws Exception {
+    void getAllUsers_successfullyGetList() throws Exception {
         when(userService.getAll()).thenReturn(List.of(userDto));
         mvc.perform(get("/users"))
                 .andExpect(status().isOk())
@@ -169,7 +169,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void test_8_deleteUser_And_ReturnStatusOk() throws Exception {
+    void deleteUser_successfullyDeleted() throws Exception {
         doNothing().when(userService).delete(eq(1L));
         mvc.perform(delete("/users/1")).andExpect(status().isOk());
         verify(userService).delete(eq(1L));

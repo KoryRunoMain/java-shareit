@@ -26,7 +26,7 @@ public class ItemMapperTest {
     private final ItemDto itemDto = new ItemDto(ITEM_ID, REQUEST_ID, "item", "descriptionItem", true, null, null, user, null);
 
     @Test
-    void test_1_toItemDto_And_ReturnOk() {
+    void toItemDto_successfully() {
         ItemDto actItemDto = itemMapper.toItemDto(item);
         assertEquals(actItemDto.getId(), itemDto.getId());
         assertEquals(actItemDto.getName(), itemDto.getName());
@@ -36,7 +36,7 @@ public class ItemMapperTest {
     }
 
     @Test
-    void test_2_toItem_And_ReturnOk() {
+    void toItem_successfully() {
         Item actItem = itemMapper.toItem(itemDto);
         assertEquals(actItem.getId(), item.getId());
         assertEquals(actItem.getName(), item.getName());

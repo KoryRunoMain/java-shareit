@@ -55,7 +55,7 @@ public class CommentRepositoryTest {
     }
 
     @Test
-    void test_1_findAllByItemId_Comment() {
+    void findAllByItemId_successfullyFindComment() {
         List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId());
         assertThat(comments.size(), equalTo(2));
         assertThat(comments.get(0), equalTo(comment2));
@@ -63,7 +63,7 @@ public class CommentRepositoryTest {
     }
 
     @Test
-    void test_2_findAllByItemId_Item() {
+    void findAllByItemId_successfullyFindItem() {
         List<Comment> comments = commentRepository.findAllByItemId(item.getId());
         assertThat(comments.size(), equalTo(2));
         assertThat(comments, containsInAnyOrder(comment1, comment2));
