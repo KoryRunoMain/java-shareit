@@ -8,46 +8,45 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
-@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
+@Validated
 public class RequestController {
     private static final String OWNER_ID = "X-Sharer-User-Id";
     private final RequestClient requestClient;
 
+    @GetMapping("/{requestId}")
+    public ResponseEntity<Object> getItemRequest(@RequestHeader(OWNER_ID) Long userId,
+                                                 @PathVariable Long requestId) {
+        log.info("Get-request getItemRequest: requestId={}, userId={}", requestId, userId);
+        return requestClient.getById(requestId, userId);
+    }
+
     @GetMapping
-    public ResponseEntity<Object> getOwnItemRequests(@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                                     @Positive @RequestParam(defaultValue = "10") Integer size,
-                                                     @RequestHeader(OWNER_ID) Long userId) {
-        log.info("Get-request getUserItemRequests: userId={}, from={}, size={}", userId, from, size);
-        return requestClient.getRequests(userId, from, size);
+    public ResponseEntity<Object> getItemRequestsByOwner(@RequestHeader(OWNER_ID) Long userId) {
+        log.info("Get-request getItemRequestsByOwner: userId={}", userId);
+        return requestClient.getByOwner(userId);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> getAllItemRequests(@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                                     @Positive @RequestParam(defaultValue = "10") Integer size,
-                                                     @RequestHeader(OWNER_ID) Long userId) {
-        log.info("Get-request getAllItemRequests: userId={}, from={}, size={}", userId, from, size);
-        return requestClient.getRequests(userId, from, size);
-    }
-
-    @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getItemRequestById(@PathVariable Long requestId,
-                                                     @RequestHeader(OWNER_ID) Long userId) {
-        log.info("Get-request getItemRequest: requestId={}, userId={}", requestId, userId);
-        return requestClient.getRequest(requestId, userId);
+    public ResponseEntity<Object> getItemRequestsByUser(@RequestHeader(OWNER_ID) Long userId,
+                                                        @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                        @Positive @RequestParam(defaultValue = "10") Integer size) {
+        log.info("Get-request getItemRequestsByUser: userId={}, from={}, size={}", userId, from, size);
+        return requestClient.getByUser(userId, from, size);
     }
 
     @PostMapping
-    public ResponseEntity<Object> createItemRequest(@Validated @RequestBody ItemRequestDto itemRequestDto,
-                                                    @RequestHeader(OWNER_ID) Long userId) {
+    public ResponseEntity<Object> createItemRequest(@RequestHeader(OWNER_ID) Long userId,
+                                                    @RequestBody @Valid ItemRequestDto itemRequestDto) {
         log.info("Post-request createItemRequest: userId={}, description={}", userId, itemRequestDto);
-        return requestClient.createRequest(userId, itemRequestDto);
+        return requestClient.create(userId, itemRequestDto);
     }
 
 }

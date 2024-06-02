@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/users")
+@Validated
 public class UserController {
     private final UserService service;
 

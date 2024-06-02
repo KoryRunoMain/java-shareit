@@ -16,22 +16,22 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
-    public List<Comment> getAllCreatedComments(Long itemId) {
-        if (itemId == null) {
-            throw new NotFoundException("fail: ItemId Not Found");
-        }
-        List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(itemId);
-        log.info("method: getAllCreatedComments |Request/Response|" + "itemDtoId:{} / comments:{}", itemId, comments);
-        return comments;
-    }
-
-    @Override
     public List<Comment> getAllComments(Long itemId) {
         if (itemId == null) {
             throw new NotFoundException("fail: ItemId Not Found");
         }
         List<Comment> comments = commentRepository.findAllByItemId(itemId);
         log.info("method: getAllComments |Request/Response|" + "itemDtoId:{} / comments:{}", itemId, comments);
+        return comments;
+    }
+
+    @Override
+    public List<Comment> getAllCreatedComments(Long itemId) {
+        if (itemId == null) {
+            throw new NotFoundException("fail: ItemId Not Found");
+        }
+        List<Comment> comments = commentRepository.findAllByItemIdOrderByCreated(itemId);
+        log.info("method: getAllCreatedComments |Request/Response|" + "itemDtoId:{} / comments:{}", itemId, comments);
         return comments;
     }
 

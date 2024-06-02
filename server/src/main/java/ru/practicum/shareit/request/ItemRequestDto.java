@@ -4,7 +4,6 @@ import lombok.*;
 import ru.practicum.shareit.item.ItemDto;
 import ru.practicum.shareit.user.UserDto;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,14 +15,9 @@ import java.util.List;
 public class ItemRequestDto {
 
     private Long id;
-
-    @NotBlank
     private String description;
-
     private UserDto requestor;
-
     private LocalDateTime created;
-
     private List<ItemDto> items;
 
 }

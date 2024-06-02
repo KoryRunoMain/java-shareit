@@ -1,10 +1,12 @@
 package ru.practicum.shareit.item;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
+@AllArgsConstructor
 public class ItemMapper {
 
     public ItemDto toItemDto(Item item) {
@@ -18,7 +20,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public Item toItem(ItemDto itemDto) {
+    public static Item toItem(ItemDto itemDto) {
         return itemDto == null ? null : Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())

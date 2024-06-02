@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CommentDto {
 
     @NotBlank

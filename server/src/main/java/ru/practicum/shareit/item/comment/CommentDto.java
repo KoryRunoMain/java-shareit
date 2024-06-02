@@ -1,9 +1,12 @@
 package ru.practicum.shareit.item.comment;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import ru.practicum.shareit.item.ItemDto;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,14 +17,9 @@ import java.time.LocalDateTime;
 public class CommentDto {
 
     private Long id;
-
-    @NotBlank
     private String text;
-
     private ItemDto item;
-
     private String authorName;
-
     private LocalDateTime created;
 
 }

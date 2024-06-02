@@ -28,8 +28,8 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     private User requestor;
 
-    @CreationTimestamp
     @Column(name = "created")
+    @CreationTimestamp
     private LocalDateTime created;
 
     @Transient

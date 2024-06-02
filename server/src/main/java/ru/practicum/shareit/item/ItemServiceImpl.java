@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.Booking;
@@ -44,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
         User user = userMapper.toUser(userService.getById(userId));
         ItemRequest itemRequest = itemDto.getRequestId() != null ? getItemRequest(itemDto) : null;
 
-        Item createdItem = itemMapper.toItem(itemDto);
+        Item createdItem = ItemMapper.toItem(itemDto);
         createdItem.setOwner(user);
         createdItem.setComments(Collections.emptyList());
         createdItem.setItemRequest(itemRequest);
@@ -57,6 +58,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public ItemDto getItemById(Long itemId, Long userId) {
+        Item item = getItem(itemId);
+        ItemDto itemDto = itemMapper.toItemDto(item);
+        if (item.getOwner().getId().equals(userId)) {
+            updateBooking(itemDto);
+        }
+        List<CommentDto> comments = commentService.getAllComments(item.getId())
+                .stream()
+                .map(commentMapper::toCommentDto)
+                .collect(Collectors.toList());
+        itemDto.setComments(comments);
+        log.info("method: getById |Request/Response|" + " itemId:{} , userId:{} / itemDto:{}", itemId, userId, itemDto);
+        return itemDto;
+    }
+
+    @Override
     public ItemRequest getItemRequest(ItemDto itemDto) {
         return itemRequestRepository.findById(itemDto.getRequestId())
                 .orElseThrow(() -> new NotFoundException("fail: itemRequestId Not Found!"));
@@ -65,7 +82,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(ItemDto itemDto, Long itemId, Long userId) {
         userService.getById(userId);
-
         Item itemToUpdate = repository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("fail: item Not Found!"));
 
@@ -81,23 +97,6 @@ public class ItemServiceImpl implements ItemService {
         return updatedItemDto;
     }
 
-    @Override
-    public ItemDto getItemById(Long itemId, Long userId) {
-        Item item = getItem(itemId);
-        ItemDto itemDto = itemMapper.toItemDto(item);
-        if (item.getOwner().getId().equals(userId)) {
-            updateBooking(itemDto);
-        }
-
-        List<CommentDto> comments = commentService.getAllComments(item.getId())
-                .stream()
-                .map(commentMapper::toCommentDto)
-                .collect(Collectors.toList());
-        itemDto.setComments(comments);
-        log.info("method: getById |Request/Response|" + " itemId:{} , userId:{} / itemDto:{}", itemId, userId, itemDto);
-        return itemDto;
-    }
-
     public ItemDto getById(Long itemId) {
         ItemDto itemDto = itemMapper.toItemDto(repository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("itemId not Found!")));
@@ -108,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAll(Long owner, int from, int size) {
         int pageNumber = from / size;
-        Pageable pageRequest = PageRequest.of(pageNumber, size);
+        Pageable pageRequest = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.ASC, "id"));
 
         List<ItemDto> items = repository.findAllByOwnerId(owner, pageRequest)
                 .stream()
@@ -164,6 +163,17 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("fail: itemId Not Found!"));
     }
 
+    private ItemDto updateBooking(ItemDto itemDto) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
+
+        Booking lastBooking = getLastBooking(now, bookings);
+        Booking nextBooking = getNextBooking(now, bookings);
+        itemDto.setLastBooking(lastBooking != null ? bookingMapper.toItemBookingDto(lastBooking) : null);
+        itemDto.setNextBooking(nextBooking != null ? bookingMapper.toItemBookingDto(nextBooking) : null);
+        return itemDto;
+    }
+
     private Booking getLastBooking(LocalDateTime now, List<Booking> bookings) {
         return bookings.stream()
                 .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
@@ -178,22 +188,6 @@ public class ItemServiceImpl implements ItemService {
                 .filter(booking -> booking.getStart().isAfter(now))
                 .min(Comparator.comparing(Booking::getStart))
                 .orElse(null);
-    }
-
-    private ItemDto updateBooking(ItemDto itemDto) {
-        LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
-
-        Booking lastBooking = getLastBooking(now, bookings);
-        Booking nextBooking = getNextBooking(now, bookings);
-
-        if (lastBooking != null) {
-            itemDto.setLastBooking(bookingMapper.toItemBookingDto(lastBooking));
-        }
-        if (nextBooking != null) {
-            itemDto.setNextBooking(bookingMapper.toItemBookingDto(nextBooking));
-        }
-        return itemDto;
     }
 
     private ItemDto addItemComments(ItemDto itemDto) {

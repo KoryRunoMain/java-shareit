@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
         itemRequest.setRequestor(user);
         itemRequest.setItems(createItemList(itemRequestDto.getItems()));
+        itemRequest.setCreated(LocalDateTime.now());
         itemRequestRepository.save(itemRequest);
 
         ItemRequestDto createdItemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
@@ -95,7 +97,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private List<Item> createItemList(List<ItemDto> items) {
         return Optional.ofNullable(items)
-                .map(itemDto -> itemDto.stream().map(itemMapper::toItem).collect(Collectors.toList()))
+                .map(itemDto -> itemDto.stream().map(ItemMapper::toItem).collect(Collectors.toList()))
                 .orElseGet(Collections::emptyList);
     }
 

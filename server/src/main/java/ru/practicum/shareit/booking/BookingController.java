@@ -1,10 +1,10 @@
 package ru.practicum.shareit.booking;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import lombok.AllArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.InputBookingDto;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,8 +24,8 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getAllUserBookings(@RequestParam(defaultValue = "ALL") String state,
-                                               @RequestHeader(OWNER_ID) Long userId,
+    public List<BookingDto> getAllUserBookings(@RequestHeader(OWNER_ID) Long userId,
+                                               @RequestParam(defaultValue = "ALL") String state,
                                                @RequestParam(defaultValue = "0") Integer from,
                                                @RequestParam(defaultValue = "10") Integer size) {
         log.info("Get-request getAllUserBookings: userId{}, state{}, from={}, size={}",

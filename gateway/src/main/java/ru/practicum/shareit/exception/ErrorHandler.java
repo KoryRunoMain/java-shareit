@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.ErrorResponse;
 
-import javax.validation.ValidationException;
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
+
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationExceptionHandle(ValidationException e) {
@@ -21,7 +20,14 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(AlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse alreadyExistExceptionHandler(AlreadyExistsException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse methodArgumentNotValidExceptionHandle(final MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult().getFieldErrors().stream()
@@ -29,6 +35,13 @@ public class ErrorHandler {
                 .reduce("", (accumulator, error) -> accumulator + error + "; ");
         log.error(e.getMessage());
         return new ErrorResponse(errorMessage);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse notFoundExceptionHandle(NotFoundException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler

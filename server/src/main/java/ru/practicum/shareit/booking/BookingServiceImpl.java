@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.InputBookingDto;
@@ -59,7 +60,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto approve(Long userId, Long bookingId, Boolean isApproved) {
+    public BookingDto approve(Long userId, Long bookingId, Boolean status) {
         userService.getById(userId);
 
         Booking booking = repository.findById(bookingId)
@@ -72,14 +73,14 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("fail: only user can approve booking!");
         }
 
-        BookingStatus newStatus = isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
+        BookingStatus newStatus = status ? BookingStatus.APPROVED : BookingStatus.REJECTED;
         booking.setStatus(newStatus);
         repository.save(booking);
 
         BookingDto approvedBookingDto = bookingMapper.toBookingDto(booking);
         log.info("method: approve |Request/Response|" + " userId:{}, bookingId:{}, isApproved:{} / " +
                         " bookingStatus:{}, approvedBookingDto:{}",
-                userId, bookingId, isApproved, newStatus, approvedBookingDto);
+                userId, bookingId, status, newStatus, approvedBookingDto);
         return approvedBookingDto;
     }
 
@@ -101,9 +102,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getAllUserBookings(Long userId, String state, int from, int size) {
         userService.getById(userId);
-//        validateState(state);
-        int page = from / size;
-        Pageable pageRequest = PageRequest.of(page, size);
+        int pageNumber = from / size;
+        Pageable pageRequest = PageRequest.of(pageNumber, size);
 
         switch (BookingState.valueOf(state)) {
             case ALL:
@@ -112,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
                         userId, state, allList);
                 return allList;
             case CURRENT:
-                List<BookingDto> currentList = getBookingDtoList(repository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+                List<BookingDto> currentList = getBookingDtoList(repository.findByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(
                         userId, LocalDateTime.now(), LocalDateTime.now(), pageRequest));
                 log.info("method: getAllUserBookings |Request/Response|" + " userId={}, state={} / list={}",
                         userId, state, currentList);
@@ -149,9 +149,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getAllOwnerBookings(Long ownerId, String state, int from, int size) {
         userService.getById(ownerId);
-//        validateState(state);
         int pageNumber = from / size;
-        Pageable pageRequest = PageRequest.of(pageNumber, size);
+        Pageable pageRequest = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.ASC, "id"));
 
         switch (BookingState.valueOf(state)) {
             case ALL:
@@ -199,13 +198,5 @@ public class BookingServiceImpl implements BookingService {
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
-
-//    private void validateState(String state) {
-//        try {
-//            BookingState.valueOf(state.toUpperCase());
-//        } catch (IllegalArgumentException e) {
-//            throw new InvalidStateException("Unknown state: " + state);
-//        }
-//    }
 
 }
