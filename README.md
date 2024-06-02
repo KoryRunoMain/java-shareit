@@ -21,9 +21,9 @@ Restful API back-end сервис для шеринга вещей.
 ## Стэк проекта
 
 - Java 11, Spring Boot, Maven, Lombok, JPQL, QueryDSL, Mockito, Postman
-- База данных: [schema.sql](src/main/resources/schema.sql)
+- База данных: [schema.sql](server/src/main/resources/schema.sql)
 - Зависимости: [pom.xml](pom.xml)
-- Тесты: [tests](.postman)
+- Тесты: [tests](postman)
 
 ## Функционал
 
@@ -65,7 +65,7 @@ Restful API back-end сервис для шеринга вещей.
 
 ### ER-diagram
 
-![](src/main/resources/ER-diagram.png)
+![](server/src/main/resources/ER-diagram.png)
 
 ## Ход проекта
 
@@ -96,7 +96,7 @@ git clone https://github.com/KoryRunoMain/java-shareit.git
    IntelliJ IDEA должна автоматически распознать проект как Maven проект и импортировать его.
    В Eclipse вы можете выбрать File -> Import -> Existing Maven Projects и выбрать корневую папку проекта.
    В NetBeans вы можете выбрать File -> Open Project и выбрать папку проекта.
-5. Запустите приложение: точка входа находится в классе [SharItApp](src/main/java/ru/practicum/shareit/ShareItApp.java) помеченном аннотацией
+5. Запустите приложение: точка входа находится в классе [SharItApp](server/src/main/java/ru/practicum/shareit/ShareItApp.java) помеченном аннотацией
    @SpringBootApplication.
    Либо запустить через Maven:
 
