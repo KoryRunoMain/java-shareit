@@ -7,7 +7,8 @@ Restful API back-end сервис для шеринга вещей.
 #### Основные особенности проекта:
 
 - Разработан с использованием фреймворка Spring Boot;
-- База данных h2database. Общение с БД на Query Methods и JPQL;
+- База данных postgreSQL. Общение с БД на Query Methods и JPQL;
+- Разработан на микросервисном подходе и включает три контейнера (валидации данных, бизнес-логика, БД)
 - 20 End-points доступных для управления данными.
 
 ## Содержание:
@@ -20,10 +21,9 @@ Restful API back-end сервис для шеринга вещей.
 
 ## Стэк проекта
 
-- Java 11, Spring Boot, Maven, Lombok, JPQL, QueryDSL, Mockito, Postman
-- База данных: [schema.sql](src/main/resources/schema.sql)
-- Зависимости: [pom.xml](pom.xml)
-- Тесты: [tests](.postman)
+- Java 11, Spring Boot, Maven, Lombok, JPQL, QueryDSL, Docker, Postman
+- Схема базы данных: [schema.sql](server/src/main/resources/schema.sql)
+- Тесты: [tests](postman)
 
 ## Функционал
 
@@ -65,18 +65,18 @@ Restful API back-end сервис для шеринга вещей.
 
 ### ER-diagram
 
-![](src/main/resources/ER-diagram.png)
+![](server/src/main/resources/ER-diagram.png)
 
 ## Ход проекта
 
 #### График проекта
 
-| Спринт    | Этап | Описание этапов                    | Отметка |
-|-----------|----|------------------------------------|---------|
-| Spring 13 | 1  | user, items entity and controllers | +       |
-| Spring 14 | 2  | bookings and comments              | +       |
-| Spring 15 | 3  | requests and mok-tests             |         |
-| Spring 16 | 4  |                                    |         |
+| Спринт    | Этап | Описание этапов                     | Отметка |
+|-----------|----|-------------------------------------|---------|
+| Spring 13 | 1  | user, items entity and controllers  | +       |
+| Spring 14 | 2  | bookings and comments               | +       |
+| Spring 15 | 3  | requests and mok-tests              | +       |
+| Spring 16 | 4  | add docker                          |         |
 
 
 ## Пошаговая инструкция по установке и запуску проета
@@ -85,10 +85,12 @@ Restful API back-end сервис для шеринга вещей.
    Git: https://git-scm.com/.
 2. Клонируйте репозиторий: Откройте командную строку или терминал и выполните команду клонирования для репозитория
    GitHub. Например:
+    ```
+    git clone https://github.com/KoryRunoMain/java-shareit.git
+    ```
 
-```
-git clone https://github.com/KoryRunoMain/java-shareit.git
-```
+3. Установите Docker: Если у вас еще не установлен Docker, загрузите и установите его с официального сайта
+    Docker: https://www.docker.com/get-started/
 
 3. Откройте проект в IDE: Откройте вашу среду разработки (IDE), такую как IntelliJ IDEA, Eclipse или NetBeans.
 4. Импортируйте проект как Maven проект: Если вы используете IntelliJ IDEA,
@@ -96,10 +98,7 @@ git clone https://github.com/KoryRunoMain/java-shareit.git
    IntelliJ IDEA должна автоматически распознать проект как Maven проект и импортировать его.
    В Eclipse вы можете выбрать File -> Import -> Existing Maven Projects и выбрать корневую папку проекта.
    В NetBeans вы можете выбрать File -> Open Project и выбрать папку проекта.
-5. Запустите приложение: точка входа находится в классе [SharItApp](src/main/java/ru/practicum/shareit/ShareItApp.java) помеченном аннотацией
-   @SpringBootApplication.
-   Либо запустить через Maven:
-
-```
-mvn spring-boot:run
-```
+5. Соберите поект, например с помощью команды в терминале:
+    ```
+    docker compose up
+    ```
